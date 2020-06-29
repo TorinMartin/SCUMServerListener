@@ -45,19 +45,24 @@
             this.setdft_btn = new System.Windows.Forms.Button();
             this.label_ping = new System.Windows.Forms.Label();
             this.Ping = new System.Windows.Forms.Label();
+            this.btn_overlay = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.overlaySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // searchbox
             // 
-            this.searchbox.Location = new System.Drawing.Point(12, 12);
+            this.searchbox.Location = new System.Drawing.Point(12, 38);
             this.searchbox.Name = "searchbox";
             this.searchbox.Size = new System.Drawing.Size(222, 20);
             this.searchbox.TabIndex = 0;
             // 
             // searchbutton
             // 
-            this.searchbutton.Location = new System.Drawing.Point(240, 9);
+            this.searchbutton.Location = new System.Drawing.Point(240, 35);
             this.searchbutton.Name = "searchbutton";
             this.searchbutton.Size = new System.Drawing.Size(75, 23);
             this.searchbutton.TabIndex = 1;
@@ -191,6 +196,41 @@
             this.Ping.Size = new System.Drawing.Size(0, 13);
             this.Ping.TabIndex = 14;
             // 
+            // btn_overlay
+            // 
+            this.btn_overlay.Location = new System.Drawing.Point(28, 144);
+            this.btn_overlay.Name = "btn_overlay";
+            this.btn_overlay.Size = new System.Drawing.Size(95, 23);
+            this.btn_overlay.TabIndex = 15;
+            this.btn_overlay.Text = "Enable Overlay";
+            this.btn_overlay.UseVisualStyleBackColor = true;
+            this.btn_overlay.Click += new System.EventHandler(this.btn_overlay_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(696, 24);
+            this.menuStrip1.TabIndex = 16;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.overlaySettingsToolStripMenuItem});
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // overlaySettingsToolStripMenuItem
+            // 
+            this.overlaySettingsToolStripMenuItem.Name = "overlaySettingsToolStripMenuItem";
+            this.overlaySettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.overlaySettingsToolStripMenuItem.Text = "Overlay Settings";
+            this.overlaySettingsToolStripMenuItem.Click += new System.EventHandler(this.overlaySettingsToolStripMenuItem_Click);
+            // 
             // GUI
             // 
             this.AcceptButton = this.searchbutton;
@@ -199,6 +239,7 @@
             this.BackColor = System.Drawing.Color.Black;
             this.BackgroundImage = global::SCUMServerListener.Properties.Resources.bg;
             this.ClientSize = new System.Drawing.Size(696, 310);
+            this.Controls.Add(this.btn_overlay);
             this.Controls.Add(this.Ping);
             this.Controls.Add(this.label_ping);
             this.Controls.Add(this.setdft_btn);
@@ -213,11 +254,15 @@
             this.Controls.Add(this.searchbutton);
             this.Controls.Add(this.searchbox);
             this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "GUI";
             this.Text = "SCUM Server Listener";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -240,6 +285,10 @@
         private System.Windows.Forms.Button setdft_btn;
         private System.Windows.Forms.Label label_ping;
         private System.Windows.Forms.Label Ping;
+        private System.Windows.Forms.Button btn_overlay;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem overlaySettingsToolStripMenuItem;
     }
 }
 

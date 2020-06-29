@@ -22,6 +22,13 @@ namespace SCUMServerListener
         private System.Windows.Forms.Timer timer1;
 
         ServerData ServerData = new ServerData();
+
+        SettingsForm settingsForm;
+
+        Thread t_overlay;
+        Overlay ol = null;
+        bool overlayEnabled = false;
+
         public GUI()
         {
             InitializeComponent();
@@ -31,6 +38,32 @@ namespace SCUMServerListener
             Update();
             toolTip1.ShowAlways = true;
             toolTip1.SetToolTip(this.progressBar1, "Server Status will update every 30 seconds...");
+        }
+
+        private void StartOverlay()
+        {
+            ol = new Overlay();
+            t_overlay = new Thread(new ThreadStart(ol.Run));
+            t_overlay.IsBackground = true;
+            t_overlay.Start();
+            if (ol.isCreated)
+            {
+                overlayEnabled = true;
+                btn_overlay.Text = "Disable Overlay";
+                Update();
+            }
+            else
+            {
+                StopOverlay();
+            }
+        }
+
+        private void StopOverlay()
+        {
+            ol.Dispose();
+            t_overlay.Abort();
+            btn_overlay.Text = "Enable Overlay";
+            overlayEnabled = false;
         }
 
         private void CreateTimer()
@@ -67,6 +100,13 @@ namespace SCUMServerListener
                     status.Text = "Offline";
                     players.Text = "0";
                 }
+                if (overlayEnabled)
+                {
+                    ol.SetName(Results[0]);
+                    ol.SetStatus(Results[2]);
+                    ol.SetPlayers(Results[1] + " / " + Results[3]);
+                    ol.SetPing(ServerData.Ping(ip, 4).ToString());
+                }
             }
             else
             {
@@ -79,10 +119,14 @@ namespace SCUMServerListener
         {
             for(int i = 0; i < servers.Count(); i++)
             {
-                DialogResult dialogResult = MessageBox.Show(servers[i].GetName(), "Search Results", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                DialogResult dialogResult = MessageBox.Show(servers[i].GetName(), "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                 if (dialogResult == DialogResult.Yes)
                 {
                     return servers[i].getID();
+                }
+                else if(dialogResult == DialogResult.Cancel)
+                {
+                    break;
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -130,51 +174,30 @@ namespace SCUMServerListener
 
         private string loadDefault()
         {
-            string id = null;
-
-            if (!File.Exists("settings.ini"))
-            {
-                MessageBox.Show("Settings file does not exist!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else
-            {
-                var settings_json = File.ReadAllText("settings.ini");
-                dynamic result = JsonConvert.DeserializeObject(settings_json);
-
-                id = result["settings"]["default_id"].ToString();
-            }
-
-            return id;
+            return SettingsManager.LoadDefault();
         }
 
         private void setdft_btn_Click(object sender, EventArgs e)
         {
-            JObject settings =
-            new JObject(
-                new JProperty("settings",
-                    new JObject(
-                        new JProperty("default_id", this.ServerID))));
+            SettingsManager.SetDefault(this.ServerID);
+        }
 
-            string path = @"settings.ini";
-            try
+        private void btn_overlay_Click(object sender, EventArgs e)
+        {
+            if (!overlayEnabled)
             {
-                if (!File.Exists(path))
-                {
-                    File.Create(path).Close();
-                }
-                TextWriter tw = new StreamWriter(path);
-                tw.Write(settings.ToString());
-                tw.Close();
-                MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                StartOverlay();
             }
-            catch (System.IO.DirectoryNotFoundException)
+            else
             {
-                MessageBox.Show("Path does not exist!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                StopOverlay();
             }
-            catch (System.UnauthorizedAccessException)
-            {
-                MessageBox.Show("Unable to write to file!. Permission is denied!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        }
+
+        private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            settingsForm = new SettingsForm(ol);
+            settingsForm.Show();
         }
     }
 }
