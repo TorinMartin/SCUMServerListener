@@ -5,6 +5,6 @@ An application to display the player count and ping of a SCUM game server. The i
 
 ![Application Photo](https://i.imgur.com/5XDMUue.png)
 
-![Application Photo](https://i.imgur.com/TOrsJrb.png)
+![Application Photo](https://i.imgur.com/AuxnmSl.png)
 
-![Application Photo](https://i.imgur.com/IifYJyD.png)
+![Application Photo](https://i.imgur.com/hx9PQl1.png)
