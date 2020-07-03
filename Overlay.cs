@@ -36,15 +36,72 @@ namespace SCUMServerListener
 			public int left, top, right, bottom;
 		}
 
-		public void SetName(string arg) { this.name = arg; }
-		public void SetPlayers(string arg) { this.players = arg; }
-		public void SetStatus(string arg) { this.status = arg; }
-		public void SetPing(string arg) { this.ping = arg; }
-
-		public void SetX(int arg) { this.x = arg; }
-		public void SetY(int arg) { this.y = arg; }
-		public int GetX() { return this.x; }
-		public int GetY() { return this.y; }
+		public string Name
+		{
+			get 
+			{
+				return this.name;
+			}
+			set
+			{
+				this.name = value;
+			}
+		}
+		public string Players
+		{
+			get
+			{
+				return this.players;
+			}
+			set
+			{
+				this.players = value;
+			}
+		}
+		public string Status
+		{
+			get
+			{
+				return this.status;
+			}
+			set
+			{
+				this.status = value;
+			}
+		}
+		public string Ping
+		{
+			get
+			{
+				return this.ping;
+			}
+			set
+			{
+				this.ping = value;
+			}
+		}
+		public int X
+		{
+			get
+			{
+				return this.x;
+			}
+			set
+			{
+				this.x = value;
+			}
+		}
+		public int Y
+		{
+			get
+			{
+				return this.y;
+			}
+			set
+			{
+				this.y = value;
+			}
+		}
 
 		[DllImport("user32.dll", SetLastError = true)]
 		static extern IntPtr FindWindow(string lpClassName, string lpWindowName);

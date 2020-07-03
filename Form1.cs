@@ -102,10 +102,10 @@ namespace SCUMServerListener
                 }
                 if (overlayEnabled)
                 {
-                    ol.SetName(Results[0]);
-                    ol.SetStatus(Results[2]);
-                    ol.SetPlayers(Results[1] + " / " + Results[3]);
-                    ol.SetPing(ServerData.Ping(ip, 4).ToString());
+                    ol.Name = Results[0];
+                    ol.Status = Results[2];
+                    ol.Players = Results[1] + " / " + Results[3];
+                    ol.Ping = ServerData.Ping(ip, 4).ToString();
                 }
             }
             else
