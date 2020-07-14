@@ -151,7 +151,10 @@ namespace SCUMServerListener
 				else
 				{
 					// OVERLAY EVERY WINDOW:
-					_window = new GraphicsWindow(0, 0, 1920, 1080, gfx)
+					var width = Screen.PrimaryScreen.Bounds.Width;
+					var height = Screen.PrimaryScreen.Bounds.Height;
+
+					_window = new GraphicsWindow(0, 0, width, height, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
