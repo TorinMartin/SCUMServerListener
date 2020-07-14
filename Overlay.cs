@@ -107,9 +107,6 @@ namespace SCUMServerListener
 		static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
 		[DllImport("user32.dll", SetLastError = true)]
-		public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-		[DllImport("user32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 

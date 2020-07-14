@@ -25,8 +25,8 @@ namespace SCUMServerListener
             this.ol = ol;
             if(ol != null)
             {
-                this.x = ol.GetX();
-                this.y = ol.GetY();
+                this.x = ol.X;
+                this.y = ol.Y;
             }
             int[] pos = SettingsManager.LoadPositions();
             tb_po1.Text = pos[0].ToString();
@@ -43,42 +43,23 @@ namespace SCUMServerListener
 
         private void btn_save_Click(object sender, EventArgs e)
         {
-            if (cb_background.Checked)
-            {
-                SettingsManager.SaveTextPref(true);
-                if (ol != null)
-                    ol.disableBackground = true;
-            }
-            else
-            {
-                SettingsManager.SaveTextPref(false);
-                if(ol != null)
-                    ol.disableBackground = false;
-            }
 
-            if (cb_allwindows.Checked)
-            {
-                SettingsManager.SaveWindowPref(true);
-            }
-            else
-            {
-                SettingsManager.SaveWindowPref(false);
-            }
-
-            if (ol != null)
-            {
-                ol.SetX(x);
-                ol.SetY(y);
-            }
+            bool disableBG = cb_background.Checked;
+            bool allWindows = cb_allwindows.Checked;
 
             if (!int.TryParse(tb_po1.Text, out x) || !int.TryParse(tb_po2.Text, out y))
             {
                 MessageBox.Show("Position Must Be Numeric!");
             }
-            else
+
+            if (ol != null)
             {
-                SettingsManager.SavePositions(x, y);
+                ol.disableBackground = disableBG;
+                ol.X = x;
+                ol.Y = y;
             }
+            SettingsManager.SaveAllSettings(allWindows, disableBG, x, y);
+            MessageBox.Show("Settings Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
         private void btn_up_Click(object sender, EventArgs e)
@@ -86,7 +67,7 @@ namespace SCUMServerListener
             y -= 10;
             tb_po2.Text = y.ToString();
             if (ol != null)
-                ol.SetY(y);
+                ol.Y = y;
         }
 
         private void btn_right_Click(object sender, EventArgs e)
@@ -94,7 +75,7 @@ namespace SCUMServerListener
             x += 10;
             tb_po1.Text = x.ToString();
             if (ol != null)
-                ol.SetX(x);
+                ol.X = x;
         }
 
         private void btn_down_Click(object sender, EventArgs e)
@@ -102,7 +83,7 @@ namespace SCUMServerListener
             y += 10;
             tb_po2.Text = y.ToString();
             if (ol != null)
-                ol.SetY(y);
+                ol.Y = y;
         }
 
         private void btn_left_Click(object sender, EventArgs e)
@@ -110,7 +91,7 @@ namespace SCUMServerListener
             x -= 10;
             tb_po1.Text = x.ToString();
             if (ol != null)
-                ol.SetX(x);
+                ol.X = x;
         }
     }
 }

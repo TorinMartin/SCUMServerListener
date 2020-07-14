@@ -71,19 +71,23 @@ namespace SCUMServerListener
             return overlayAllWindows;
         }
 
-        public static void SaveWindowPref(bool arg)
+        public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y)
         {
             string json = LoadJSON();
-            if (json != "")
+            if(json != "")
             {
                 JObject settingsJob = JObject.Parse(json);
                 JObject settings = (JObject)settingsJob["settings"];
 
-                settings["overlayAllWindows"] = arg.ToString();
+                settings["overlayAllWindows"] = windowPref.ToString();
+                settings["disableBackground"] = textPref.ToString();
+                settings["posx"] = x.ToString();
+                settings["posy"] = y.ToString();
 
                 SaveSettings(settingsJob);
             }
         }
+
         public static void SetDefault(string id)
         {
             string json = LoadJSON();
@@ -100,21 +104,6 @@ namespace SCUMServerListener
             }
         }
 
-        public static void SavePositions(int x, int y)
-        {
-            string json = LoadJSON();
-            if (json != "")
-            {
-                JObject settingsJob = JObject.Parse(json);
-                JObject settings = (JObject)settingsJob["settings"];
-
-                settings["posx"] = x.ToString();
-                settings["posy"] = y.ToString();
-
-                SaveSettings(settingsJob);
-            }
-        }
-
         public static bool LoadTextPref()
         {
             bool disableBackground = false;
@@ -126,20 +115,6 @@ namespace SCUMServerListener
                 disableBackground = (bool)result["settings"]["disableBackground"];
             }
             return disableBackground;
-        }
-
-        public static void SaveTextPref(bool arg)
-        {
-            string json = LoadJSON();
-            if (json != "")
-            {
-                JObject settingsJob = JObject.Parse(json);
-                JObject settings = (JObject)settingsJob["settings"];
-
-                settings["disableBackground"] = arg.ToString();
-
-                SaveSettings(settingsJob);
-            }
         }
 
         public static void SaveSettings(JObject settings)
