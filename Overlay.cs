@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -20,6 +21,13 @@ namespace SCUMServerListener
 		public bool isCreated = false;
 
 		public bool disableBackground = false;
+		public bool overlayAllWindows = false;
+
+		private IntPtr hWnd = IntPtr.Zero;
+		string windowName = "SCUM  ";
+		string className = "UnrealWindow";
+
+		private Process gameProcess = null;
 
 		private string name = "";
 		private string players = "";
@@ -110,6 +118,8 @@ namespace SCUMServerListener
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern bool CloseHandle(IntPtr hHandle);
 
 		public Overlay()
 		{
@@ -121,24 +131,23 @@ namespace SCUMServerListener
 				MeasureFPS = true,
 				PerPrimitiveAntiAliasing = true,
 				TextAntiAliasing = true,
-				WindowHandle = IntPtr.Zero
 			};
 
-			string windowName = "SCUM  ";
-			string className = "UnrealWindow";
-			var hWnd = FindWindow(className, windowName);
+			hWnd = FindWindow(className, windowName);
 
 			GetWindowRect(hWnd, out rect);
 
 			disableBackground = SettingsManager.LoadTextPref();
+			overlayAllWindows = SettingsManager.LoadWindowPref();
 			int[] pos = SettingsManager.LoadPositions();
 			this.x = pos[0];
 			this.y = pos[1];
 
 			try
 			{
-				if (!SettingsManager.LoadWindowPref())
+				if (!overlayAllWindows)
 				{
+					this.gameProcess = GetGameProcess();
 					_window = new StickyWindow(hWnd, gfx)
 					{
 						FPS = 60,
@@ -232,6 +241,21 @@ namespace SCUMServerListener
 			}
 		}
 
+		public bool HasProcessExited()
+		{
+			return this.gameProcess.HasExited;
+		}
+
+		private Process GetGameProcess()
+		{
+			Process[] procList = Process.GetProcessesByName("SCUM");
+			if (procList.Length > 0)
+			{
+				return procList[0];
+			}
+			return null;
+		}
+
 		~Overlay()
 		{
 			Dispose(false);
@@ -244,6 +268,9 @@ namespace SCUMServerListener
 		{
 			if (isCreated)
 			{
+				if (hWnd != IntPtr.Zero)
+					CloseHandle(hWnd);
+
 				if (!disposedValue)
 				{
 					_window.Dispose();

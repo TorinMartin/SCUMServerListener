@@ -64,6 +64,7 @@ namespace SCUMServerListener
             t_overlay.Abort();
             btn_overlay.Text = "Enable Overlay";
             overlayEnabled = false;
+            ol = null;
         }
 
         private void CreateTimer()
@@ -162,6 +163,11 @@ namespace SCUMServerListener
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            if (ol != null)
+                if (!ol.overlayAllWindows)
+                    if (ol.HasProcessExited())
+                        StopOverlay();
+
             if (counter == 30)
             {
                 progressBar1.Value = 0;
