@@ -19,7 +19,7 @@ namespace SCUMServerListener
     {
         string ServerID = "2608083";
         private int counter = 0;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer updateTimer;
 
         ServerData ServerData = new ServerData();
 
@@ -36,8 +36,8 @@ namespace SCUMServerListener
             this.ServerID = loadDefault();
             CreateTimer();
             Update();
-            toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(this.progressBar1, "Server Status will update every 30 seconds...");
+            update_tooltip.ShowAlways = true;
+            update_tooltip.SetToolTip(this.update_progbar, "Server Status will update every 30 seconds...");
         }
 
         private void StartOverlay()
@@ -69,12 +69,12 @@ namespace SCUMServerListener
 
         private void CreateTimer()
         {
-            timer1 = new System.Windows.Forms.Timer();
-            timer1.Tick += new EventHandler(timer1_Tick);
-            timer1.Interval = 1000; 
-            timer1.Start();
-            progressBar1.Maximum = 30;
-            progressBar1.Value = 0;
+            updateTimer = new System.Windows.Forms.Timer();
+            updateTimer.Tick += new EventHandler(updateTimer_Tick);
+            updateTimer.Interval = 1000;
+            updateTimer.Start();
+            update_progbar.Maximum = 30;
+            update_progbar.Value = 0;
         }
 
         private void Update()
@@ -84,14 +84,22 @@ namespace SCUMServerListener
             {
                 name.Text = Results[0];
                 var ip = Results[4];
+                var port = Results[5];
+                string serverTime = "";
+                string ping = "";
+
                 if (Results[2] == "online")
                 {
+                    serverTime = ServerData.GetServerTime(ip, port);
+                    ping = ServerData.Ping(ip, 4).ToString();
+
                     name.ForeColor = System.Drawing.Color.Green;
                     status.ForeColor = System.Drawing.Color.Green;
                     players.ForeColor = System.Drawing.Color.Green;
                     status.Text = "Online";
                     players.Text = Results[1] + " / " + Results[3];
-                    Ping.Text = ServerData.Ping(ip, 4).ToString();
+                    time.Text = serverTime;
+                    Ping.Text = ping;
                 }
                 else
                 {
@@ -100,13 +108,15 @@ namespace SCUMServerListener
                     name.ForeColor = System.Drawing.Color.Red;
                     status.Text = "Offline";
                     players.Text = "0";
+                    time.Text = "";
                 }
                 if (overlayEnabled)
                 {
                     ol.Name = Results[0];
                     ol.Status = Results[2];
                     ol.Players = Results[1] + " / " + Results[3];
-                    ol.Ping = ServerData.Ping(ip, 4).ToString();
+                    ol.Time = serverTime;
+                    ol.Ping = ping;
                 }
             }
             else
@@ -120,10 +130,10 @@ namespace SCUMServerListener
         {
             for(int i = 0; i < servers.Count(); i++)
             {
-                DialogResult dialogResult = MessageBox.Show(servers[i].GetName(), "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                DialogResult dialogResult = MessageBox.Show(servers[i].Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    return servers[i].getID();
+                    return servers[i].ID;
                 }
                 else if(dialogResult == DialogResult.Cancel)
                 {
@@ -141,27 +151,22 @@ namespace SCUMServerListener
             var servers = ServerData.GetServerID(LookUpString);
             this.ServerID = IterateResults(servers);
 
-            timer1_Reset();
+            updateTimer_Reset();
 
             if (ServerID != "scum")
             {
                 searchbutton.Enabled = false;
                 Update();
             }
-            else
-            {
-                this.ServerID = "2608083";
-                MessageBox.Show("Search query returned no result!", "Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
-        private void timer1_Reset()
+        private void updateTimer_Reset()
         {
-            progressBar1.Value = 0;
+            update_progbar.Value = 0;
             counter = 0;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void updateTimer_Tick(object sender, EventArgs e)
         {
             if (ol != null)
                 if (!ol.overlayAllWindows)
@@ -173,12 +178,12 @@ namespace SCUMServerListener
 
             if (counter == 30)
             {
-                progressBar1.Value = 0;
+                update_progbar.Value = 0;
                 counter = 0;
                 Update();
             }
             counter++;
-            progressBar1.Value = counter;
+            update_progbar.Value = counter;
         }
 
         private string loadDefault()

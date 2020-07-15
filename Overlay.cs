@@ -20,7 +20,7 @@ namespace SCUMServerListener
 
 		public bool isCreated = false;
 
-		public bool disableBackground = false;
+		public bool disableBackground = true;
 		public bool overlayAllWindows = false;
 
 		private IntPtr hWnd = IntPtr.Zero;
@@ -29,13 +29,9 @@ namespace SCUMServerListener
 
 		private Process gameProcess = null;
 
-		private string name = "";
-		private string players = "";
-		private string status = "";
-		private string ping = "";
+		private string name, players, status, time, ping = "";
 
-		int x = 20;
-		int y = 20;
+		int x, y = 20;
 
 		RECT rect;
 
@@ -46,36 +42,24 @@ namespace SCUMServerListener
 
 		public string Name
 		{
-			get 
-			{
-				return this.name;
-			}
-			set
-			{
-				this.name = value;
-			}
+			get { return this.name; }
+			set { this.name = value; }
 		}
 		public string Players
 		{
-			get
-			{
-				return this.players;
-			}
-			set
-			{
-				this.players = value;
-			}
+			get { return this.players; }
+			set { this.players = value; }
 		}
 		public string Status
 		{
-			get
-			{
-				return this.status;
-			}
-			set
-			{
-				this.status = value;
-			}
+			get { return this.status; }
+			set { this.status = value; }
+		}
+
+		public string Time
+		{
+			get { return this.time; }
+			set { this.time = value; }
 		}
 		public string Ping
 		{
@@ -217,7 +201,7 @@ namespace SCUMServerListener
 		{
 			var gfx = e.Graphics;
 
-			var infoText = name + "\nPlayers: " + players + "\nPing: " + ping;
+			var infoText = name + "\nPlayers: " + players + "\nTime: " +time + "\nPing: " + ping;
 	
 			gfx.ClearScene();
 

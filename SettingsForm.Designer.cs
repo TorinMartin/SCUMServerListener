@@ -33,14 +33,14 @@
             this.btn_save = new System.Windows.Forms.Button();
             this.cb_background = new System.Windows.Forms.CheckBox();
             this.cb_allwindows = new System.Windows.Forms.CheckBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cb_serveronline = new System.Windows.Forms.ComboBox();
             this.lbl_color1 = new System.Windows.Forms.Label();
             this.lbl_color2 = new System.Windows.Forms.Label();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.cb_serveroffline = new System.Windows.Forms.ComboBox();
             this.lbl_coords = new System.Windows.Forms.Label();
             this.tb_po1 = new System.Windows.Forms.TextBox();
             this.tb_po2 = new System.Windows.Forms.TextBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.allwindows_tooltip = new System.Windows.Forms.ToolTip(this.components);
             this.cb_bgColor = new System.Windows.Forms.ComboBox();
             this.lbl_bgcolor = new System.Windows.Forms.Label();
             this.btn_left = new System.Windows.Forms.Button();
@@ -79,12 +79,12 @@
             this.cb_allwindows.Text = "Overlay All Windows";
             this.cb_allwindows.UseVisualStyleBackColor = true;
             // 
-            // comboBox1
+            // cb_serveronline
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.Enabled = false;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.cb_serveronline.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_serveronline.Enabled = false;
+            this.cb_serveronline.FormattingEnabled = true;
+            this.cb_serveronline.Items.AddRange(new object[] {
             "Green",
             "Red",
             "Blue",
@@ -92,10 +92,10 @@
             "White",
             "Pink",
             "Black"});
-            this.comboBox1.Location = new System.Drawing.Point(12, 130);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 4;
+            this.cb_serveronline.Location = new System.Drawing.Point(12, 130);
+            this.cb_serveronline.Name = "cb_serveronline";
+            this.cb_serveronline.Size = new System.Drawing.Size(121, 21);
+            this.cb_serveronline.TabIndex = 4;
             // 
             // lbl_color1
             // 
@@ -115,12 +115,12 @@
             this.lbl_color2.TabIndex = 6;
             this.lbl_color2.Text = "Server Offline Color";
             // 
-            // comboBox2
+            // cb_serveroffline
             // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.Enabled = false;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
+            this.cb_serveroffline.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cb_serveroffline.Enabled = false;
+            this.cb_serveroffline.FormattingEnabled = true;
+            this.cb_serveroffline.Items.AddRange(new object[] {
             "Green",
             "Red",
             "Blue",
@@ -128,10 +128,10 @@
             "White",
             "Pink",
             "Black"});
-            this.comboBox2.Location = new System.Drawing.Point(12, 175);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(121, 21);
-            this.comboBox2.TabIndex = 7;
+            this.cb_serveroffline.Location = new System.Drawing.Point(12, 175);
+            this.cb_serveroffline.Name = "cb_serveroffline";
+            this.cb_serveroffline.Size = new System.Drawing.Size(121, 21);
+            this.cb_serveroffline.TabIndex = 7;
             // 
             // lbl_coords
             // 
@@ -229,10 +229,10 @@
             this.Controls.Add(this.tb_po2);
             this.Controls.Add(this.tb_po1);
             this.Controls.Add(this.lbl_coords);
-            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.cb_serveroffline);
             this.Controls.Add(this.lbl_color2);
             this.Controls.Add(this.lbl_color1);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.cb_serveronline);
             this.Controls.Add(this.cb_allwindows);
             this.Controls.Add(this.cb_background);
             this.Controls.Add(this.btn_save);
@@ -250,10 +250,10 @@
         private System.Windows.Forms.Button btn_save;
         private System.Windows.Forms.CheckBox cb_background;
         private System.Windows.Forms.CheckBox cb_allwindows;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cb_serveronline;
         private System.Windows.Forms.Label lbl_color1;
         private System.Windows.Forms.Label lbl_color2;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox cb_serveroffline;
         private System.Windows.Forms.Label lbl_coords;
         private System.Windows.Forms.TextBox tb_po1;
         private System.Windows.Forms.TextBox tb_po2;
@@ -261,7 +261,7 @@
         private System.Windows.Forms.Button btn_down;
         private System.Windows.Forms.Button btn_right;
         private System.Windows.Forms.Button btn_left;
-        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolTip allwindows_tooltip;
         private System.Windows.Forms.ComboBox cb_bgColor;
         private System.Windows.Forms.Label lbl_bgcolor;
     }

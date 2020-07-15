@@ -39,18 +39,20 @@
             this.label_name = new System.Windows.Forms.Label();
             this.label_status = new System.Windows.Forms.Label();
             this.label_players = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.gradbg_picbox = new System.Windows.Forms.PictureBox();
+            this.update_progbar = new System.Windows.Forms.ProgressBar();
+            this.update_tooltip = new System.Windows.Forms.ToolTip(this.components);
             this.setdft_btn = new System.Windows.Forms.Button();
             this.label_ping = new System.Windows.Forms.Label();
             this.Ping = new System.Windows.Forms.Label();
             this.btn_overlay = new System.Windows.Forms.Button();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.overlaySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.menuStrip1.SuspendLayout();
+            this.label_time = new System.Windows.Forms.Label();
+            this.time = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).BeginInit();
+            this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // searchbox
@@ -98,7 +100,7 @@
             this.status.AutoSize = true;
             this.status.BackColor = System.Drawing.Color.Black;
             this.status.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.status.Location = new System.Drawing.Point(86, 222);
+            this.status.Location = new System.Drawing.Point(86, 209);
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(0, 16);
             this.status.TabIndex = 4;
@@ -109,7 +111,7 @@
             this.players.BackColor = System.Drawing.Color.Black;
             this.players.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.players.ForeColor = System.Drawing.Color.Black;
-            this.players.Location = new System.Drawing.Point(86, 265);
+            this.players.Location = new System.Drawing.Point(86, 266);
             this.players.Name = "players";
             this.players.Size = new System.Drawing.Size(0, 16);
             this.players.TabIndex = 5;
@@ -130,7 +132,7 @@
             this.label_status.AutoSize = true;
             this.label_status.BackColor = System.Drawing.Color.Black;
             this.label_status.ForeColor = System.Drawing.Color.DarkOrange;
-            this.label_status.Location = new System.Drawing.Point(33, 225);
+            this.label_status.Location = new System.Drawing.Point(35, 211);
             this.label_status.Name = "label_status";
             this.label_status.Size = new System.Drawing.Size(40, 13);
             this.label_status.TabIndex = 7;
@@ -141,29 +143,29 @@
             this.label_players.AutoSize = true;
             this.label_players.BackColor = System.Drawing.Color.Black;
             this.label_players.ForeColor = System.Drawing.Color.DarkOrange;
-            this.label_players.Location = new System.Drawing.Point(33, 268);
+            this.label_players.Location = new System.Drawing.Point(35, 268);
             this.label_players.Name = "label_players";
             this.label_players.Size = new System.Drawing.Size(47, 13);
             this.label_players.TabIndex = 8;
             this.label_players.Text = "Players: ";
             // 
-            // pictureBox1
+            // gradbg_picbox
             // 
-            this.pictureBox1.BackgroundImage = global::SCUMServerListener.Properties.Resources.grad;
-            this.pictureBox1.Location = new System.Drawing.Point(28, 170);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(656, 128);
-            this.pictureBox1.TabIndex = 9;
-            this.pictureBox1.TabStop = false;
+            this.gradbg_picbox.BackgroundImage = global::SCUMServerListener.Properties.Resources.grad;
+            this.gradbg_picbox.Location = new System.Drawing.Point(28, 170);
+            this.gradbg_picbox.Name = "gradbg_picbox";
+            this.gradbg_picbox.Size = new System.Drawing.Size(656, 125);
+            this.gradbg_picbox.TabIndex = 9;
+            this.gradbg_picbox.TabStop = false;
             // 
-            // progressBar1
+            // update_progbar
             // 
-            this.progressBar1.BackColor = System.Drawing.Color.Black;
-            this.progressBar1.ForeColor = System.Drawing.Color.Orange;
-            this.progressBar1.Location = new System.Drawing.Point(457, 271);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(216, 10);
-            this.progressBar1.TabIndex = 11;
+            this.update_progbar.BackColor = System.Drawing.Color.Black;
+            this.update_progbar.ForeColor = System.Drawing.Color.Orange;
+            this.update_progbar.Location = new System.Drawing.Point(459, 272);
+            this.update_progbar.Name = "update_progbar";
+            this.update_progbar.Size = new System.Drawing.Size(216, 10);
+            this.update_progbar.TabIndex = 11;
             // 
             // setdft_btn
             // 
@@ -206,15 +208,15 @@
             this.btn_overlay.UseVisualStyleBackColor = true;
             this.btn_overlay.Click += new System.EventHandler(this.btn_overlay_Click);
             // 
-            // menuStrip1
+            // menuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(696, 24);
-            this.menuStrip1.TabIndex = 16;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(696, 24);
+            this.menuStrip.TabIndex = 16;
+            this.menuStrip.Text = "menuStrip";
             // 
             // settingsToolStripMenuItem
             // 
@@ -227,9 +229,30 @@
             // overlaySettingsToolStripMenuItem
             // 
             this.overlaySettingsToolStripMenuItem.Name = "overlaySettingsToolStripMenuItem";
-            this.overlaySettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.overlaySettingsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.overlaySettingsToolStripMenuItem.Text = "Overlay Settings";
             this.overlaySettingsToolStripMenuItem.Click += new System.EventHandler(this.overlaySettingsToolStripMenuItem_Click);
+            // 
+            // label_time
+            // 
+            this.label_time.AutoSize = true;
+            this.label_time.ForeColor = System.Drawing.Color.DarkOrange;
+            this.label_time.Location = new System.Drawing.Point(35, 241);
+            this.label_time.Name = "label_time";
+            this.label_time.Size = new System.Drawing.Size(36, 13);
+            this.label_time.TabIndex = 17;
+            this.label_time.Text = "Time: ";
+            this.label_time.UseMnemonic = false;
+            // 
+            // time
+            // 
+            this.time.AutoSize = true;
+            this.time.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.time.ForeColor = System.Drawing.Color.Green;
+            this.time.Location = new System.Drawing.Point(86, 239);
+            this.time.Name = "time";
+            this.time.Size = new System.Drawing.Size(0, 15);
+            this.time.TabIndex = 18;
             // 
             // GUI
             // 
@@ -238,12 +261,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.BackgroundImage = global::SCUMServerListener.Properties.Resources.bg;
-            this.ClientSize = new System.Drawing.Size(696, 310);
+            this.ClientSize = new System.Drawing.Size(696, 305);
+            this.Controls.Add(this.time);
+            this.Controls.Add(this.label_time);
             this.Controls.Add(this.btn_overlay);
             this.Controls.Add(this.Ping);
             this.Controls.Add(this.label_ping);
             this.Controls.Add(this.setdft_btn);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.update_progbar);
             this.Controls.Add(this.name);
             this.Controls.Add(this.label_players);
             this.Controls.Add(this.label_status);
@@ -253,16 +278,16 @@
             this.Controls.Add(this.title);
             this.Controls.Add(this.searchbutton);
             this.Controls.Add(this.searchbox);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.gradbg_picbox);
+            this.Controls.Add(this.menuStrip);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
+            this.MainMenuStrip = this.menuStrip;
             this.Name = "GUI";
             this.Text = "SCUM Server Listener";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).EndInit();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -279,16 +304,18 @@
         private System.Windows.Forms.Label label_name;
         private System.Windows.Forms.Label label_status;
         private System.Windows.Forms.Label label_players;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.PictureBox gradbg_picbox;
+        private System.Windows.Forms.ProgressBar update_progbar;
+        private System.Windows.Forms.ToolTip update_tooltip;
         private System.Windows.Forms.Button setdft_btn;
         private System.Windows.Forms.Label label_ping;
         private System.Windows.Forms.Label Ping;
         private System.Windows.Forms.Button btn_overlay;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem overlaySettingsToolStripMenuItem;
+        private System.Windows.Forms.Label label_time;
+        private System.Windows.Forms.Label time;
     }
 }
 

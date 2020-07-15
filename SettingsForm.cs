@@ -37,8 +37,8 @@ namespace SCUMServerListener
             disableBackground = SettingsManager.LoadTextPref();
             cb_allwindows.Checked = overlayAll;
             cb_background.Checked = disableBackground;
-            toolTip1.ShowAlways = true;
-            toolTip1.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
+            allwindows_tooltip.ShowAlways = true;
+            allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
         }
 
         private void btn_save_Click(object sender, EventArgs e)

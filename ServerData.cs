@@ -13,22 +13,25 @@ namespace ServerListener
 {
     public class Server
     {
-        string name;
-        string ID;
+        private string name;
+        private string id;
+
+        public string Name
+        {
+            get { return this.name; }
+            set { this.name = value; }
+        }
+
+        public string ID
+        {
+            get { return this.id; }
+            set { this.id = value; }
+        }
 
         public Server(string argid, string argname)
         {
             this.name = argname;
             this.ID = argid;
-        }
-
-        public string getID()
-        {
-            return this.ID;
-        }
-        public string GetName()
-        {
-            return this.name;
         }
     }
 
@@ -46,8 +49,6 @@ namespace ServerListener
                     i++;
                 }
             }
-
-            //return "https://www.battlemetrics.com/servers/scum?q=" + serverString + "&sort=score";
             return "https://api.battlemetrics.com/servers?sort=rank&fields%5Bserver%5D=rank%2Cname%2Cplayers%2CmaxPlayers%2Caddress%2Cip%2Cport%2Ccountry%2Clocation%2Cdetails%2Cstatus&relations%5Bserver%5D=game%2CserverGroup&filter%5Bgame%5D=scum&filter%5Bsearch%5D=" + serverString;
         }
 
@@ -73,28 +74,6 @@ namespace ServerListener
                         results.Add(new Server((string)server["id"], (string)server["attributes"]["name"]));
                     }
                     return results;
-
-                    //** Grabs JSON from webpage and removes the script tags prior to parsing it. Old method and not used currently **//
-                    //Regex serverIdReg = new Regex("{.*}}</script>");
-                    //Match serverIdMatch = serverIdReg.Match(htmlCode);
-
-                    //if (serverIdMatch.Success)
-                    //{
-                    //    var result = serverIdMatch.ToString();
-                    //    if (result.Contains("</script>"))
-                    //    {
-                    //        data = result.Remove(result.IndexOf("</script>"), "</script>".Length);
-                    //    }
-                    //}
-
-                    //dynamic dataSet = JObject.Parse(data);
-                    //var servers = (JObject)dataSet["servers"]["servers"];
-
-                    //foreach (var server in servers)
-                    //{
-                    //    results.Add(new Server(server.Key, server.Value.Value<string>("name")));
-                    //}
-                    //return results;
                 }
                 catch (WebException)
                 {
@@ -105,8 +84,7 @@ namespace ServerListener
 
         public string[] RetrieveData(string serverId)
         {
-
-            string htmlCode;
+            string data;
 
             string[] results = new string[6];
 
@@ -114,10 +92,9 @@ namespace ServerListener
             {
                 try
                 {
-                    //htmlCode = client.DownloadString("https://api.battlemetrics.com/servers/2608083");
-                    htmlCode = client.DownloadString("https://api.battlemetrics.com/servers/" + serverId);
+                    data = client.DownloadString("https://api.battlemetrics.com/servers/" + serverId);
 
-                    dynamic result = JsonConvert.DeserializeObject(htmlCode);
+                    dynamic result = JsonConvert.DeserializeObject(data);
 
                     results[0] = result["data"]["attributes"]["name"].ToString();
                     results[1] = result["data"]["attributes"]["players"].ToString();
@@ -134,6 +111,41 @@ namespace ServerListener
                     return null;
                 }
             }
+        }
+
+        public string GetServerTime(string ip, string port)
+        {
+            string time = "";
+            string gamePort = (int.Parse(port) - 2).ToString();
+            string data;
+
+            string apiURL = $"https://scumservers.net/api.php?ip={ip}&port={gamePort}";
+
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    data = client.DownloadString(apiURL);
+                    if ((data.StartsWith("{") && data.EndsWith("}"))){
+                        try
+                        {
+                            dynamic result = JsonConvert.DeserializeObject(data);
+                            time = result["serverTime"].ToString();
+                            return time;
+                        }
+                        catch (JsonSerializationException)
+                        {
+                            return null;
+                        }
+                    }
+                }
+                catch (WebException)
+                {
+                    return null;
+                }
+            }
+
+            return null;
         }
 
         public double Ping(string host, int echoNum)
