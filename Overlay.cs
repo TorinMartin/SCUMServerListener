@@ -121,17 +121,11 @@ namespace SCUMServerListener
 		[DllImport("kernel32.dll", SetLastError = true)]
 		static extern bool CloseHandle(IntPtr hHandle);
 
-		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		static extern bool IsIconic(IntPtr hWnd);
+		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+		private static extern IntPtr GetForegroundWindow();
 
-		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		static extern bool IsZoomed(IntPtr hWnd);
-
-		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		static extern bool IsWindowVisible(IntPtr hWnd);
+		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+		private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
 		public Overlay()
 		{
@@ -145,10 +139,6 @@ namespace SCUMServerListener
 				TextAntiAliasing = true,
 			};
 
-			hWnd = FindWindow(className, windowName);
-
-			GetWindowRect(hWnd, out rect);
-
 			disableBackground = SettingsManager.LoadTextPref();
 			overlayAllWindows = SettingsManager.LoadWindowPref();
 			int[] pos = SettingsManager.LoadPositions();
@@ -159,7 +149,10 @@ namespace SCUMServerListener
 			{
 				if (!overlayAllWindows)
 				{
+					hWnd = FindWindow(className, windowName);
+					GetWindowRect(hWnd, out rect);
 					this.gameProcess = GetGameProcess();
+
 					_window = new StickyWindow(hWnd, gfx)
 					{
 						FPS = 60,
@@ -179,7 +172,7 @@ namespace SCUMServerListener
 					{
 						FPS = 60,
 						IsTopmost = true,
-						IsVisible = true
+						IsVisible = true,
 					};
 				}
 
@@ -258,14 +251,22 @@ namespace SCUMServerListener
 			return this.gameProcess.HasExited;
 		}
 
-		public void CheckWindowVisibility()
+		// Credit https://stackoverflow.com/questions/7162834/determine-if-current-application-is-activated-has-focus
+		private bool ApplicationIsActivated()
 		{
-			_window.IsVisible = IsWindowVisible(hWnd);
-			//if (IsIconic(hWnd))
-			//	_window.IsVisible = false;
+			var activehWnd = GetForegroundWindow();
+			if (activehWnd == IntPtr.Zero)
+				return false;
 
-			//if (IsZoomed(hWnd))
-			//	_window.IsVisible = true;
+			int activeProcId;
+			GetWindowThreadProcessId(activehWnd, out activeProcId);
+
+			return activeProcId == gameProcess.Id;
+		}
+
+		public void SetWindowVisibility()
+		{
+			_window.IsVisible = ApplicationIsActivated();
 		}
 
 		private Process GetGameProcess()

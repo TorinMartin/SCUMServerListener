@@ -166,7 +166,7 @@ namespace SCUMServerListener
             if (ol != null)
                 if (!ol.overlayAllWindows)
                 {
-                    ol.CheckWindowVisibility();
+                    ol.SetWindowVisibility();
                     if (ol.HasProcessExited())
                         StopOverlay();
                 }
