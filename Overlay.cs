@@ -121,6 +121,18 @@ namespace SCUMServerListener
 		[DllImport("kernel32.dll", SetLastError = true)]
 		static extern bool CloseHandle(IntPtr hHandle);
 
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		static extern bool IsIconic(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		static extern bool IsZoomed(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		static extern bool IsWindowVisible(IntPtr hWnd);
+
 		public Overlay()
 		{
 			_brushes = new Dictionary<string, SolidBrush>();
@@ -213,7 +225,7 @@ namespace SCUMServerListener
 			var gfx = e.Graphics;
 
 			var infoText = name + "\nPlayers: " + players + "\nPing: " + ping;
-
+	
 			gfx.ClearScene();
 
 			if (!disableBackground)
@@ -244,6 +256,16 @@ namespace SCUMServerListener
 		public bool HasProcessExited()
 		{
 			return this.gameProcess.HasExited;
+		}
+
+		public void CheckWindowVisibility()
+		{
+			_window.IsVisible = IsWindowVisible(hWnd);
+			//if (IsIconic(hWnd))
+			//	_window.IsVisible = false;
+
+			//if (IsZoomed(hWnd))
+			//	_window.IsVisible = true;
 		}
 
 		private Process GetGameProcess()
