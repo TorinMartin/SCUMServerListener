@@ -49,7 +49,7 @@ namespace ServerListener
                     i++;
                 }
             }
-            return "https://api.battlemetrics.com/servers?sort=rank&fields%5Bserver%5D=rank%2Cname%2Cplayers%2CmaxPlayers%2Caddress%2Cip%2Cport%2Ccountry%2Clocation%2Cdetails%2Cstatus&relations%5Bserver%5D=game%2CserverGroup&filter%5Bgame%5D=scum&filter%5Bsearch%5D=" + serverString;
+            return "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=" + serverString;
         }
 
         public List<Server> GetServerID(string lookUpString)
