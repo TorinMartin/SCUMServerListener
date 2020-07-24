@@ -17,6 +17,8 @@ namespace SCUMServerListener
         int x = 20;
         int y = 20;
         bool showName, showPlayers, showTime, showPing;
+        string serverOfflineColor, serverOnlineColor, backgroundColor;
+        IDictionary<string, string> settings = new Dictionary<string, string>();
 
         Overlay ol = null;
 
@@ -31,21 +33,20 @@ namespace SCUMServerListener
                 this.x = ol.X;
                 this.y = ol.Y;
             }
-            int[] pos = SettingsManager.LoadPositions();
-            tb_po1.Text = pos[0].ToString();
-            tb_po2.Text = pos[1].ToString();
-            this.x = pos[0];
-            this.y = pos[1];
-            overlayAll = SettingsManager.LoadWindowPref();
-            disableBackground = SettingsManager.LoadTextPref();
+            settings = SettingsManager.LoadAllSettings();
 
-            IDictionary<string, bool> toggles = new Dictionary<string, bool>();
-            toggles = SettingsManager.LoadToggles();
+            tb_po1.Text = settings["posx"];
+            tb_po2.Text = settings["posy"];
+            this.x = int.Parse(settings["posx"]);
+            this.y = int.Parse(settings["posy"]);
 
-            showName = toggles["showName"];
-            showPlayers = toggles["showPlayers"];
-            showTime = toggles["showTime"];
-            showPing = toggles["showPing"];
+            overlayAll = bool.Parse(settings["overlayAllWindows"]);
+            disableBackground = bool.Parse(settings["disableBackground"]);
+
+            showName = bool.Parse(settings["showName"]);
+            showPlayers = bool.Parse(settings["showPlayers"]);
+            showTime = bool.Parse(settings["showTime"]);
+            showPing = bool.Parse(settings["showPing"]);
 
             cb_name.Checked = showName;
             cb_players.Checked = showPlayers;
@@ -56,6 +57,10 @@ namespace SCUMServerListener
 
             allwindows_tooltip.ShowAlways = true;
             allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
+
+            cb_bgColor.SelectedItem = settings["bgColor"];
+            cb_serveroffline.SelectedItem = settings["offlineColor"];
+            cb_serveronline.SelectedItem = settings["onlineColor"];
         }
 
         private void btn_save_Click(object sender, EventArgs e)
@@ -67,6 +72,9 @@ namespace SCUMServerListener
             showPlayers = cb_players.Checked;
             showTime = cb_time.Checked;
             showPing = cb_ping.Checked;
+            serverOnlineColor = cb_serveronline.Text;
+            serverOfflineColor = cb_serveroffline.Text;
+            backgroundColor = cb_bgColor.Text;
 
             if (!int.TryParse(tb_po1.Text, out x) || !int.TryParse(tb_po2.Text, out y))
             {
@@ -82,8 +90,11 @@ namespace SCUMServerListener
                 ol.showPlayers = showPlayers;
                 ol.showTime = showTime;
                 ol.showPing = showPing;
+                ol.onlineColor = cb_serveronline.Text.ToLower();
+                ol.offlineColor = cb_serveroffline.Text.ToLower();
+                ol.bgColor = cb_bgColor.Text.ToLower();
             }
-            SettingsManager.SaveAllSettings(overlayAll, disableBackground, x, y, showName, showPlayers, showTime, showPing);
+            SettingsManager.SaveAllSettings(overlayAll, disableBackground, x, y, showName, showPlayers, showTime, showPing, serverOnlineColor, serverOfflineColor, backgroundColor);
             MessageBox.Show("Settings Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 

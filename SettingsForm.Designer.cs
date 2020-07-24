@@ -87,7 +87,6 @@
             // cb_serveronline
             // 
             this.cb_serveronline.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_serveronline.Enabled = false;
             this.cb_serveronline.FormattingEnabled = true;
             this.cb_serveronline.Items.AddRange(new object[] {
             "Green",
@@ -95,7 +94,7 @@
             "Blue",
             "Yellow",
             "White",
-            "Pink",
+            "Cyan",
             "Black"});
             this.cb_serveronline.Location = new System.Drawing.Point(12, 130);
             this.cb_serveronline.Name = "cb_serveronline";
@@ -123,7 +122,6 @@
             // cb_serveroffline
             // 
             this.cb_serveroffline.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_serveroffline.Enabled = false;
             this.cb_serveroffline.FormattingEnabled = true;
             this.cb_serveroffline.Items.AddRange(new object[] {
             "Green",
@@ -131,7 +129,7 @@
             "Blue",
             "Yellow",
             "White",
-            "Pink",
+            "Cyan",
             "Black"});
             this.cb_serveroffline.Location = new System.Drawing.Point(12, 175);
             this.cb_serveroffline.Name = "cb_serveroffline";
@@ -164,8 +162,17 @@
             // cb_bgColor
             // 
             this.cb_bgColor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cb_bgColor.Enabled = false;
             this.cb_bgColor.FormattingEnabled = true;
+            this.cb_bgColor.Items.AddRange(new object[] {
+            "Dark",
+            "Grid",
+            "Green",
+            "Red",
+            "Blue",
+            "Yellow",
+            "White",
+            "Cyan",
+            "Black"});
             this.cb_bgColor.Location = new System.Drawing.Point(12, 90);
             this.cb_bgColor.Name = "cb_bgColor";
             this.cb_bgColor.Size = new System.Drawing.Size(121, 21);

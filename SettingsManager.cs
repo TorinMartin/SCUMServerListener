@@ -26,24 +26,6 @@ namespace SCUMServerListener
             return settings_json;
         }
 
-        public static IDictionary<string, bool> LoadToggles()
-        {
-            IDictionary<string, bool> toggles = new Dictionary<string, bool>();
-
-            var settings_json = LoadJSON();
-            if (settings_json != "")
-            {
-                dynamic result = JsonConvert.DeserializeObject(settings_json);
-
-                toggles.Add("showName", (bool)result["settings"]["showName"]);
-                toggles.Add("showPlayers", (bool)result["settings"]["showPlayers"]);
-                toggles.Add("showTime", (bool)result["settings"]["showTime"]);
-                toggles.Add("showPing", (bool)result["settings"]["showPing"]);
-            }
-
-            return toggles;
-        }
-
         public static string LoadDefault()
         {
             string id = "0";
@@ -58,51 +40,29 @@ namespace SCUMServerListener
 
             return id;
         }
-
-        public static int[] LoadPositions()
+        public static IDictionary<string, string> LoadAllSettings()
         {
-            int[] pos = new int[2];
-            pos[0] = 20;
-            pos[1] = 20;
+            IDictionary<string, string> settings = new Dictionary<string, string>();
 
             var settings_json = LoadJSON();
             if (settings_json != "")
             {
                 dynamic result = JsonConvert.DeserializeObject(settings_json);
-
-                pos[0] = (int)result["settings"]["posx"];
-                pos[1] = (int)result["settings"]["posy"];
+                settings.Add("disableBackground", result["settings"]["disableBackground"].ToString());
+                settings.Add("overlayAllWindows", result["settings"]["overlayAllWindows"].ToString());
+                settings.Add("posx", result["settings"]["posx"].ToString());
+                settings.Add("posy", result["settings"]["posy"].ToString());
+                settings.Add("showName", result["settings"]["showName"].ToString());
+                settings.Add("showPlayers", result["settings"]["showPlayers"].ToString());
+                settings.Add("showTime", result["settings"]["showTime"].ToString());
+                settings.Add("showPing", result["settings"]["showPing"].ToString());
+                settings.Add("onlineColor", result["settings"]["onlineColor"].ToString());
+                settings.Add("offlineColor", result["settings"]["offlineColor"].ToString());
+                settings.Add("bgColor", result["settings"]["bgColor"].ToString());
             }
 
-            return pos;
+            return settings;
         }
-
-        public static bool LoadWindowPref()
-        {
-            bool overlayAllWindows = false;
-            var settings_json = LoadJSON();
-            if (settings_json != "")
-            {
-                dynamic result = JsonConvert.DeserializeObject(settings_json);
-
-                overlayAllWindows = (bool)result["settings"]["overlayAllWindows"];
-            }
-            return overlayAllWindows;
-        }
-
-        public static bool LoadTextPref()
-        {
-            bool disableBackground = false;
-            var settings_json = LoadJSON();
-            if (settings_json != "")
-            {
-                dynamic result = JsonConvert.DeserializeObject(settings_json);
-
-                disableBackground = (bool)result["settings"]["disableBackground"];
-            }
-            return disableBackground;
-        }
-
 
         public static void SetDefault(string id)
         {
@@ -121,7 +81,7 @@ namespace SCUMServerListener
         }
 
 
-        public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y, bool showName, bool showPlayers, bool showTime, bool showPing)
+        public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y, bool showName, bool showPlayers, bool showTime, bool showPing, string onlineCol, string offlineCol, string bgCol)
         {
             string json = LoadJSON();
             if (json != "")
@@ -137,6 +97,9 @@ namespace SCUMServerListener
                 settings["showPlayers"] = showPlayers.ToString();
                 settings["showTime"] = showTime.ToString();
                 settings["showPing"] = showPing.ToString();
+                settings["onlineColor"] = onlineCol;
+                settings["offlineColor"] = offlineCol;
+                settings["bgColor"] = bgCol;
 
                 SaveSettings(settingsJob);
             }

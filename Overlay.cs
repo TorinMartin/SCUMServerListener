@@ -24,15 +24,19 @@ namespace SCUMServerListener
 		public bool overlayAllWindows = false;
 		public bool showName, showPlayers, showTime, showPing;
 
+		public string onlineColor, offlineColor, bgColor;
+
 		private IntPtr hWnd = IntPtr.Zero;
 		string windowName = "SCUM  ";
 		string className = "UnrealWindow";
 
 		private Process gameProcess = null;
 
-		private string name, players, status, time, ping = "";
+		private string name, players, status, time, ping;
 
-		int x, y = 20;
+		int x = 20, y = 20;
+
+		IDictionary<string, string> settings = new Dictionary<string, string>();
 
 		RECT rect;
 
@@ -64,36 +68,18 @@ namespace SCUMServerListener
 		}
 		public string Ping
 		{
-			get
-			{
-				return this.ping;
-			}
-			set
-			{
-				this.ping = value;
-			}
+			get { return this.ping; }
+			set { this.ping = value; }
 		}
 		public int X
 		{
-			get
-			{
-				return this.x;
-			}
-			set
-			{
-				this.x = value;
-			}
+			get { return this.x; }
+			set { this.x = value; }
 		}
 		public int Y
 		{
-			get
-			{
-				return this.y;
-			}
-			set
-			{
-				this.y = value;
-			}
+			get { return this.y; }
+			set { this.y = value; }
 		}
 
 		[DllImport("user32.dll", SetLastError = true)]
@@ -124,20 +110,22 @@ namespace SCUMServerListener
 				TextAntiAliasing = true,
 			};
 
-			disableBackground = SettingsManager.LoadTextPref();
-			overlayAllWindows = SettingsManager.LoadWindowPref();
+			settings = SettingsManager.LoadAllSettings();
 
-			IDictionary<string, bool> toggles = new Dictionary<string, bool>();
-			toggles = SettingsManager.LoadToggles();
+			disableBackground = bool.Parse(settings["disableBackground"]);
+			overlayAllWindows = bool.Parse(settings["overlayAllWindows"]);
 
-			showName = toggles["showName"];
-			showPlayers = toggles["showPlayers"];
-			showTime = toggles["showTime"];
-			showPing = toggles["showPing"];
+			showName = bool.Parse(settings["showName"]);
+			showPlayers = bool.Parse(settings["showPlayers"]);
+			showTime = bool.Parse(settings["showTime"]);
+			showPing = bool.Parse(settings["showPing"]);
 
-			int[] pos = SettingsManager.LoadPositions();
-			this.x = pos[0];
-			this.y = pos[1];
+			this.x = int.Parse(settings["posx"]);
+			this.y = int.Parse(settings["posy"]);
+
+			onlineColor = settings["onlineColor"].ToLower();
+			offlineColor = settings["offlineColor"].ToLower();
+			bgColor = settings["bgColor"].ToLower();
 
 			try
 			{
@@ -189,9 +177,14 @@ namespace SCUMServerListener
 			}
 
 			_brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
+			_brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
 			_brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
 			_brushes["green"] = gfx.CreateSolidBrush(0, 255, 0);
-			_brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F);
+			_brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255);
+			_brushes["yellow"] = gfx.CreateSolidBrush(255, 255, 0);
+			_brushes["cyan"] = gfx.CreateSolidBrush(0, 255, 255);
+			_brushes["dark"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F);
+			_brushes["grid"] = gfx.CreateSolidBrush(255, 255, 255, 0.2f);
 
 			if (e.RecreateResources) return;
 
@@ -225,23 +218,21 @@ namespace SCUMServerListener
 			if(showPing)
 				infoText += "\nPing: " + ping;
 
-			//var infoText = name + "\nPlayers: " + players + "\nTime: " +time + "\nPing: " + ping;
-
 			gfx.ClearScene();
 
 			if (!disableBackground)
 			{
 				if (status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], this.x, this.y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], this.x, this.y, infoText);
 				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["red"], _brushes["background"], this.x, this.y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], this.x, this.y, infoText);
 			}
 			else
 			{
 				if (status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes["green"], this.x, this.y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[onlineColor], this.x, this.y, infoText);
 				else
-					gfx.DrawText(_fonts["consolas"], _brushes["red"], this.x, this.y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[offlineColor], this.x, this.y, infoText);
 			}
 		}
 
