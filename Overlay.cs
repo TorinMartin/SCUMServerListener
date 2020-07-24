@@ -22,6 +22,7 @@ namespace SCUMServerListener
 
 		public bool disableBackground = true;
 		public bool overlayAllWindows = false;
+		public bool showName, showPlayers, showTime, showPing;
 
 		private IntPtr hWnd = IntPtr.Zero;
 		string windowName = "SCUM  ";
@@ -125,6 +126,15 @@ namespace SCUMServerListener
 
 			disableBackground = SettingsManager.LoadTextPref();
 			overlayAllWindows = SettingsManager.LoadWindowPref();
+
+			IDictionary<string, bool> toggles = new Dictionary<string, bool>();
+			toggles = SettingsManager.LoadToggles();
+
+			showName = toggles["showName"];
+			showPlayers = toggles["showPlayers"];
+			showTime = toggles["showTime"];
+			showPing = toggles["showPing"];
+
 			int[] pos = SettingsManager.LoadPositions();
 			this.x = pos[0];
 			this.y = pos[1];
@@ -201,8 +211,22 @@ namespace SCUMServerListener
 		{
 			var gfx = e.Graphics;
 
-			var infoText = name + "\nPlayers: " + players + "\nTime: " +time + "\nPing: " + ping;
-	
+			var infoText = "";
+
+			if (showName)
+				infoText += name;
+
+			if (showPlayers)
+				infoText += "\nPlayers: " + players;
+
+			if (showTime)
+				infoText += "\nTime: " + time;
+
+			if(showPing)
+				infoText += "\nPing: " + ping;
+
+			//var infoText = name + "\nPlayers: " + players + "\nTime: " +time + "\nPing: " + ping;
+
 			gfx.ClearScene();
 
 			if (!disableBackground)

@@ -16,7 +16,10 @@ namespace SCUMServerListener
         bool overlayAll = false;
         int x = 20;
         int y = 20;
+        bool showName, showPlayers, showTime, showPing;
+
         Overlay ol = null;
+
         public SettingsForm(Overlay ol)
         {
             InitializeComponent();
@@ -35,8 +38,22 @@ namespace SCUMServerListener
             this.y = pos[1];
             overlayAll = SettingsManager.LoadWindowPref();
             disableBackground = SettingsManager.LoadTextPref();
+
+            IDictionary<string, bool> toggles = new Dictionary<string, bool>();
+            toggles = SettingsManager.LoadToggles();
+
+            showName = toggles["showName"];
+            showPlayers = toggles["showPlayers"];
+            showTime = toggles["showTime"];
+            showPing = toggles["showPing"];
+
+            cb_name.Checked = showName;
+            cb_players.Checked = showPlayers;
+            cb_time.Checked = showTime;
+            cb_ping.Checked = showPing;
             cb_allwindows.Checked = overlayAll;
             cb_background.Checked = disableBackground;
+
             allwindows_tooltip.ShowAlways = true;
             allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
         }
@@ -44,8 +61,12 @@ namespace SCUMServerListener
         private void btn_save_Click(object sender, EventArgs e)
         {
 
-            bool disableBG = cb_background.Checked;
-            bool allWindows = cb_allwindows.Checked;
+            disableBackground = cb_background.Checked;
+            overlayAll = cb_allwindows.Checked;
+            showName = cb_name.Checked;
+            showPlayers = cb_players.Checked;
+            showTime = cb_time.Checked;
+            showPing = cb_ping.Checked;
 
             if (!int.TryParse(tb_po1.Text, out x) || !int.TryParse(tb_po2.Text, out y))
             {
@@ -54,11 +75,15 @@ namespace SCUMServerListener
 
             if (ol != null)
             {
-                ol.disableBackground = disableBG;
+                ol.disableBackground = disableBackground;
                 ol.X = x;
                 ol.Y = y;
+                ol.showName = showName;
+                ol.showPlayers = showPlayers;
+                ol.showTime = showTime;
+                ol.showPing = showPing;
             }
-            SettingsManager.SaveAllSettings(allWindows, disableBG, x, y);
+            SettingsManager.SaveAllSettings(overlayAll, disableBackground, x, y, showName, showPlayers, showTime, showPing);
             MessageBox.Show("Settings Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 

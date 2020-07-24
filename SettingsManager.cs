@@ -25,6 +25,25 @@ namespace SCUMServerListener
             }
             return settings_json;
         }
+
+        public static IDictionary<string, bool> LoadToggles()
+        {
+            IDictionary<string, bool> toggles = new Dictionary<string, bool>();
+
+            var settings_json = LoadJSON();
+            if (settings_json != "")
+            {
+                dynamic result = JsonConvert.DeserializeObject(settings_json);
+
+                toggles.Add("showName", (bool)result["settings"]["showName"]);
+                toggles.Add("showPlayers", (bool)result["settings"]["showPlayers"]);
+                toggles.Add("showTime", (bool)result["settings"]["showTime"]);
+                toggles.Add("showPing", (bool)result["settings"]["showPing"]);
+            }
+
+            return toggles;
+        }
+
         public static string LoadDefault()
         {
             string id = "0";
@@ -71,22 +90,19 @@ namespace SCUMServerListener
             return overlayAllWindows;
         }
 
-        public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y)
+        public static bool LoadTextPref()
         {
-            string json = LoadJSON();
-            if(json != "")
+            bool disableBackground = false;
+            var settings_json = LoadJSON();
+            if (settings_json != "")
             {
-                JObject settingsJob = JObject.Parse(json);
-                JObject settings = (JObject)settingsJob["settings"];
+                dynamic result = JsonConvert.DeserializeObject(settings_json);
 
-                settings["overlayAllWindows"] = windowPref.ToString();
-                settings["disableBackground"] = textPref.ToString();
-                settings["posx"] = x.ToString();
-                settings["posy"] = y.ToString();
-
-                SaveSettings(settingsJob);
+                disableBackground = (bool)result["settings"]["disableBackground"];
             }
+            return disableBackground;
         }
+
 
         public static void SetDefault(string id)
         {
@@ -104,18 +120,28 @@ namespace SCUMServerListener
             }
         }
 
-        public static bool LoadTextPref()
-        {
-            bool disableBackground = false;
-            var settings_json = LoadJSON();
-            if (settings_json != "")
-            {
-                dynamic result = JsonConvert.DeserializeObject(settings_json);
 
-                disableBackground = (bool)result["settings"]["disableBackground"];
+        public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y, bool showName, bool showPlayers, bool showTime, bool showPing)
+        {
+            string json = LoadJSON();
+            if (json != "")
+            {
+                JObject settingsJob = JObject.Parse(json);
+                JObject settings = (JObject)settingsJob["settings"];
+
+                settings["overlayAllWindows"] = windowPref.ToString();
+                settings["disableBackground"] = textPref.ToString();
+                settings["posx"] = x.ToString();
+                settings["posy"] = y.ToString();
+                settings["showName"] = showName.ToString();
+                settings["showPlayers"] = showPlayers.ToString();
+                settings["showTime"] = showTime.ToString();
+                settings["showPing"] = showPing.ToString();
+
+                SaveSettings(settingsJob);
             }
-            return disableBackground;
         }
+
 
         public static void SaveSettings(JObject settings)
         {
