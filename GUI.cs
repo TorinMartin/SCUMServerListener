@@ -12,6 +12,7 @@ using System.Threading;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Windows.Threading;
 
 namespace SCUMServerListener
 {
@@ -35,12 +36,12 @@ namespace SCUMServerListener
             this.MaximizeBox = false; 
             this.ServerID = loadDefault();
             CreateTimer();
-            Update();
+            counter = 30;
             update_tooltip.ShowAlways = true;
             update_tooltip.SetToolTip(this.update_progbar, "Server Status will update every 30 seconds...");
         }
 
-        private void StartOverlay()
+        private async void StartOverlay()
         {
             ol = new Overlay();
             t_overlay = new Thread(new ThreadStart(ol.Run));
@@ -50,7 +51,7 @@ namespace SCUMServerListener
             {
                 overlayEnabled = true;
                 btn_overlay.Text = "Disable Overlay";
-                Update();
+                await Task.Run(() => Update());
             }
             else
             {
@@ -77,46 +78,55 @@ namespace SCUMServerListener
             update_progbar.Value = 0;
         }
 
-        private void Update()
+        private async Task Update()
         {
             String[] Results = ServerData.RetrieveData(this.ServerID);
             if (Results != null)
             {
-                name.Text = Results[0];
                 var ip = Results[4];
                 var port = Results[5];
-                string serverTime = "";
-                string ping = "";
 
-                if (Results[2] == "online")
+                MethodInvoker updateName = delegate
                 {
-                    serverTime = ServerData.GetServerTime(ip, port);
-                    ping = ServerData.Ping(ip, 4).ToString();
+                    name.Text = Results[0];
+                    _ = Results[2] == "online" ? name.ForeColor = System.Drawing.Color.Green : name.ForeColor = System.Drawing.Color.Red;
+                };
 
-                    name.ForeColor = System.Drawing.Color.Green;
-                    status.ForeColor = System.Drawing.Color.Green;
-                    players.ForeColor = System.Drawing.Color.Green;
-                    status.Text = "Online";
-                    players.Text = Results[1] + " / " + Results[3];
-                    time.Text = serverTime;
-                    Ping.Text = ping;
-                }
-                else
+                MethodInvoker updateStatus = delegate
                 {
-                    status.ForeColor = System.Drawing.Color.Red;
-                    players.ForeColor = System.Drawing.Color.Red;
-                    name.ForeColor = System.Drawing.Color.Red;
-                    status.Text = "Offline";
-                    players.Text = "0";
-                    time.Text = "";
-                }
+                    _ = Results[2] == "online" ? status.Text = "Online" : status.Text = "Offline";
+                    _ = Results[2] == "online" ? status.ForeColor = System.Drawing.Color.Green : status.ForeColor = System.Drawing.Color.Red;
+                };
+
+                MethodInvoker updatePlayers = delegate
+                {
+                    _ = Results[2] == "online" ? players.Text = Results[1] + " / " + Results[3] : players.Text = "0";
+                    _ = Results[2] == "online" ? players.ForeColor = System.Drawing.Color.Green : players.ForeColor = System.Drawing.Color.Red;
+                };
+
+                MethodInvoker updateTime = delegate
+                {
+                    _ = Results[2] == "online" ? time.Text = Results[6] : time.Text = " ";
+                };
+
+                MethodInvoker updatePing = delegate
+                {
+                    _ = Results[2] == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = " ";
+                };
+
+                name.BeginInvoke(updateName);
+                status.BeginInvoke(updateStatus);
+                players.BeginInvoke(updatePlayers);
+                time.BeginInvoke(updateTime);
+                Ping.BeginInvoke(updatePing);
+
                 if (overlayEnabled)
                 {
                     ol.Name = Results[0];
                     ol.Status = Results[2];
                     ol.Players = Results[1] + " / " + Results[3];
-                    ol.Time = serverTime;
-                    ol.Ping = ping;
+                    ol.Time = Results[6];
+                    ol.Ping = ServerData.Ping(ip, 4).ToString();
                 }
             }
             else
@@ -128,23 +138,26 @@ namespace SCUMServerListener
 
         private string IterateResults(List<Server> servers)
         {
-            for(int i = 0; i < servers.Count(); i++)
+            if (servers != null)
             {
-                DialogResult dialogResult = MessageBox.Show(servers[i].Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-                if (dialogResult == DialogResult.Yes)
+                for (int i = 0; i < servers.Count(); i++)
                 {
-                    return servers[i].ID;
-                }
-                else if(dialogResult == DialogResult.Cancel)
-                {
-                    break;
+                    DialogResult dialogResult = MessageBox.Show(servers[i].Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        return servers[i].ID;
+                    }
+                    else if (dialogResult == DialogResult.Cancel)
+                    {
+                        break;
+                    }
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return this.ServerID;
         }
 
-        private void searchbutton_Click(object sender, EventArgs e)
+        private async void searchbutton_Click(object sender, EventArgs e)
         {
             String SearchInput = searchbox.Text;
             String LookUpString = ServerData.GetLookupString(SearchInput);
@@ -156,7 +169,7 @@ namespace SCUMServerListener
             if (ServerID != "scum")
             {
                 searchbutton.Enabled = false;
-                Update();
+                await Task.Run(() => Update());
             }
         }
 
@@ -166,7 +179,7 @@ namespace SCUMServerListener
             counter = 0;
         }
 
-        private void updateTimer_Tick(object sender, EventArgs e)
+        private async void updateTimer_Tick(object sender, EventArgs e)
         {
             if (ol != null)
                 if (!ol.overlayAllWindows)
@@ -176,11 +189,11 @@ namespace SCUMServerListener
                         StopOverlay();
                 }
 
-            if (counter == 30)
+            if (counter >= 30)
             {
                 update_progbar.Value = 0;
                 counter = 0;
-                Update();
+                await Task.Run(() => Update()); 
             }
             counter++;
             update_progbar.Value = counter;

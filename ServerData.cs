@@ -86,7 +86,7 @@ namespace ServerListener
         {
             string data;
 
-            string[] results = new string[6];
+            string[] results = new string[7];
 
             using (WebClient client = new WebClient())
             {
@@ -102,11 +102,16 @@ namespace ServerListener
                     results[3] = result["data"]["attributes"]["maxPlayers"].ToString();
                     results[4] = result["data"]["attributes"]["ip"].ToString();
                     results[5] = result["data"]["attributes"]["port"].ToString();
+                    results[6] = result["data"]["attributes"]["details"]["time"].ToString();
 
                     return results;
 
                 }
                 catch (WebException)
+                {
+                    return null;
+                }
+                catch (System.Net.Sockets.SocketException)
                 {
                     return null;
                 }
