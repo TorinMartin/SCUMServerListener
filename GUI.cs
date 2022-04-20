@@ -1,18 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ServerListener;
 using System.Threading;
-using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Windows.Threading;
 
 namespace SCUMServerListener
 {
@@ -27,7 +18,7 @@ namespace SCUMServerListener
         SettingsForm settingsForm;
 
         Thread t_overlay;
-        Overlay ol = null;
+        Overlay ol;
         bool overlayEnabled = false;
 
         public GUI()
@@ -62,7 +53,7 @@ namespace SCUMServerListener
         private void StopOverlay()
         {
             ol.Dispose();
-            t_overlay.Abort();
+            t_overlay.Join();
             btn_overlay.Text = "Enable Overlay";
             overlayEnabled = false;
             ol = null;
@@ -78,47 +69,28 @@ namespace SCUMServerListener
             update_progbar.Value = 0;
         }
 
-        private async Task Update()
+        private void Update()
         {
             String[] Results = ServerData.RetrieveData(this.ServerID);
+
             if (Results != null)
             {
-                var ip = Results[4];
-                var port = Results[5];
+                string ip = Results[4];
+                string port = Results[5];
 
-                MethodInvoker updateName = delegate
-                {
+                Action UpdateUIElements = new Action(() => {
                     name.Text = Results[0];
                     _ = Results[2] == "online" ? name.ForeColor = System.Drawing.Color.Green : name.ForeColor = System.Drawing.Color.Red;
-                };
-
-                MethodInvoker updateStatus = delegate
-                {
                     _ = Results[2] == "online" ? status.Text = "Online" : status.Text = "Offline";
                     _ = Results[2] == "online" ? status.ForeColor = System.Drawing.Color.Green : status.ForeColor = System.Drawing.Color.Red;
-                };
-
-                MethodInvoker updatePlayers = delegate
-                {
                     _ = Results[2] == "online" ? players.Text = Results[1] + " / " + Results[3] : players.Text = "0";
                     _ = Results[2] == "online" ? players.ForeColor = System.Drawing.Color.Green : players.ForeColor = System.Drawing.Color.Red;
-                };
-
-                MethodInvoker updateTime = delegate
-                {
                     _ = Results[2] == "online" ? time.Text = Results[6] : time.Text = " ";
-                };
-
-                MethodInvoker updatePing = delegate
-                {
                     _ = Results[2] == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = " ";
-                };
+                });
 
-                name.BeginInvoke(updateName);
-                status.BeginInvoke(updateStatus);
-                players.BeginInvoke(updatePlayers);
-                time.BeginInvoke(updateTime);
-                Ping.BeginInvoke(updatePing);
+                // Call on UI thread
+                name.BeginInvoke(UpdateUIElements);
 
                 if (overlayEnabled)
                 {
@@ -140,12 +112,12 @@ namespace SCUMServerListener
         {
             if (servers != null)
             {
-                for (int i = 0; i < servers.Count(); i++)
+                foreach (Server server in servers)
                 {
-                    DialogResult dialogResult = MessageBox.Show(servers[i].Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                    DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        return servers[i].ID;
+                        return server.ID;
                     }
                     else if (dialogResult == DialogResult.Cancel)
                     {
