@@ -9,17 +9,15 @@ namespace SCUMServerListener
 {
     public partial class GUI : Form
     {
-        string ServerID = "2608083";
+        private string ServerID = "2608083";
         private int counter = 0;
         private System.Windows.Forms.Timer updateTimer;
 
-        ServerData ServerData = new ServerData();
+        private SettingsForm settingsForm;
 
-        SettingsForm settingsForm;
-
-        Thread t_overlay;
-        Overlay ol;
-        bool overlayEnabled = false;
+        private Thread t_overlay;
+        private Overlay ol;
+        private bool overlayEnabled = false;
 
         public GUI()
         {
@@ -71,46 +69,45 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            String[] Results = ServerData.RetrieveData(this.ServerID);
-
-            if (Results != null)
+            String[] Results;
+            if(!ServerData.RetrieveData(this.ServerID, out Results))
             {
-                string ip = Results[4];
-                string port = Results[5];
-
-                Action UpdateUIElements = new Action(() => {
-                    name.Text = Results[0];
-                    _ = Results[2] == "online" ? name.ForeColor = System.Drawing.Color.Green : name.ForeColor = System.Drawing.Color.Red;
-                    _ = Results[2] == "online" ? status.Text = "Online" : status.Text = "Offline";
-                    _ = Results[2] == "online" ? status.ForeColor = System.Drawing.Color.Green : status.ForeColor = System.Drawing.Color.Red;
-                    _ = Results[2] == "online" ? players.Text = Results[1] + " / " + Results[3] : players.Text = "0";
-                    _ = Results[2] == "online" ? players.ForeColor = System.Drawing.Color.Green : players.ForeColor = System.Drawing.Color.Red;
-                    _ = Results[2] == "online" ? time.Text = Results[6] : time.Text = " ";
-                    _ = Results[2] == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = " ";
-                });
-
-                // Call on UI thread
-                name.BeginInvoke(UpdateUIElements);
-
-                if (overlayEnabled)
-                {
-                    ol.Name = Results[0];
-                    ol.Status = Results[2];
-                    ol.Players = Results[1] + " / " + Results[3];
-                    ol.Time = Results[6];
-                    ol.Ping = ServerData.Ping(ip, 4).ToString();
-                }
+                MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            else
+
+            string ip = Results[4];
+            string port = Results[5];
+
+            Action UpdateUIElements = new Action(() => {
+                name.Text = Results[0];
+                _ = Results[2] == "online" ? name.ForeColor = System.Drawing.Color.Green : name.ForeColor = System.Drawing.Color.Red;
+                _ = Results[2] == "online" ? status.Text = "Online" : status.Text = "Offline";
+                _ = Results[2] == "online" ? status.ForeColor = System.Drawing.Color.Green : status.ForeColor = System.Drawing.Color.Red;
+                _ = Results[2] == "online" ? players.Text = $"{Results[1]} / {Results[3]}" : players.Text = "0";
+                _ = Results[2] == "online" ? players.ForeColor = System.Drawing.Color.Green : players.ForeColor = System.Drawing.Color.Red;
+                _ = Results[2] == "online" ? time.Text = Results[6] : time.Text = " ";
+                _ = Results[2] == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = " ";
+            });
+
+            // Run on UI thread
+            this.BeginInvoke(UpdateUIElements);
+
+            if (overlayEnabled)
             {
-                MessageBox.Show("No Connection! Retrying...", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ol.Name = Results[0];
+                ol.Status = Results[2];
+                ol.Players = $"{Results[1]} / {Results[3]}"; 
+                ol.Time = Results[6];
+                ol.Ping = ServerData.Ping(ip, 4).ToString();
             }
-            searchbutton.Enabled = true;
+
+            this.BeginInvoke(new Action(() => { searchbutton.Enabled = true; }));
         }
 
         private string IterateResults(List<Server> servers)
         {
-            if (servers != null)
+            if (servers is not null)
             {
                 foreach (Server server in servers)
                 {
@@ -133,7 +130,15 @@ namespace SCUMServerListener
         {
             String SearchInput = searchbox.Text;
             String LookUpString = ServerData.GetLookupString(SearchInput);
-            var servers = ServerData.GetServerID(LookUpString);
+
+            List<Server> servers;
+
+            if(!ServerData.GetServers(LookUpString, out servers))
+            {
+                MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            
             this.ServerID = IterateResults(servers);
 
             updateTimer_Reset();
@@ -153,7 +158,7 @@ namespace SCUMServerListener
 
         private async void updateTimer_Tick(object sender, EventArgs e)
         {
-            if (ol != null)
+            if (ol is not null)
                 if (!ol.overlayAllWindows)
                 {
                     ol.SetWindowVisibility();
