@@ -66,7 +66,7 @@ namespace ServerListener
 
                     foreach (var server in servers)
                     {
-                        results.Add(new Server(server["id"], server["attributes"]["name"]));
+                        results.Add(new Server(server["id"].ToString(), server["attributes"]["name"].ToString()));
                     }
                 }
                 catch (WebException)
