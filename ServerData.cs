@@ -10,22 +10,26 @@ using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Http;
 
-namespace ServerListener
+namespace SCUMServerListener
 {
+    public enum Data
+    {
+        Name,
+        Players,
+        Status,
+        MaxPlayers,
+        Ip,
+        Port,
+        Time
+    };
+
     public class Server
     {
         private string _name;
         private string _id;
 
-        public string Name
-        {
-            get => this._name;
-        }
-
-        public string ID
-        {
-            get => this._id;
-        }
+        public string Name => this._name;
+        public string ID => this._id;
 
         public Server(string id, string name)
         {
@@ -47,7 +51,6 @@ namespace ServerListener
 
         public static bool GetServers(string lookUpString, out List<Server> results)
         {
-
             string? json;
 
             results = new List<Server>();
@@ -76,11 +79,11 @@ namespace ServerListener
             }
         }
 
-        public static bool RetrieveData(string serverId, out string[] results)
+        public static bool RetrieveData(string serverId, out Dictionary<Data, string> results)
         {
             string? data;
             const string apiUrl = "https://api.battlemetrics.com/servers/";
-            results = new string[7];
+            results = new();
 
             using (WebClient client = new WebClient())
             {
@@ -92,24 +95,22 @@ namespace ServerListener
 
                     dynamic result = JsonConvert.DeserializeObject(data);
 
-                    results[0] = result["data"]["attributes"]["name"].ToString();
-                    results[1] = result["data"]["attributes"]["players"].ToString();
-                    results[2] = result["data"]["attributes"]["status"].ToString();
-                    results[3] = result["data"]["attributes"]["maxPlayers"].ToString();
-                    results[4] = result["data"]["attributes"]["ip"].ToString();
-                    results[5] = result["data"]["attributes"]["port"].ToString();
-                    results[6] = result["data"]["attributes"]["details"]["time"].ToString();
+                    results.Add(Data.Name, result["data"]["attributes"]["name"].ToString());
+                    results.Add(Data.Players, result["data"]["attributes"]["players"].ToString());
+                    results.Add(Data.Status, result["data"]["attributes"]["status"].ToString());
+                    results.Add(Data.MaxPlayers, result["data"]["attributes"]["maxPlayers"].ToString());
+                    results.Add(Data.Ip, result["data"]["attributes"]["ip"].ToString());
+                    results.Add(Data.Port, result["data"]["attributes"]["port"].ToString());
+                    results.Add(Data.Time, result["data"]["attributes"]["details"]["time"].ToString());
 
                     return true;
 
                 }
-                catch (WebException)
+                catch (Exception ex)
                 {
-                    return false;
-                }
-                catch (System.Net.Sockets.SocketException)
-                {
-                    return false;
+                    if(ex is WebException or System.Net.Sockets.SocketException)
+                        return false;
+                    throw;
                 }
             }
         }
