@@ -9,7 +9,7 @@ namespace SCUMServerListener
 {
     public partial class GUI : Form
     {
-        private string ServerID = "2608083";
+        private string ServerID = "16315624";
         private int counter = 0;
         private System.Windows.Forms.Timer updateTimer;
 
@@ -69,57 +69,71 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            String[] Results;
-            if(!ServerData.RetrieveData(this.ServerID, out Results))
+            Dictionary<Data, string>? Results;
+            if(!ServerData.RetrieveData(this.ServerID, out Results) || Results is null || Results.Count == 0)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            string ip = Results[4];
-            string port = Results[5];
+            Action UpdateUIElements;
 
-            Action UpdateUIElements = new Action(() => {
-                name.Text = Results[0];
-                _ = Results[2] == "online" ? name.ForeColor = System.Drawing.Color.Green : name.ForeColor = System.Drawing.Color.Red;
-                _ = Results[2] == "online" ? status.Text = "Online" : status.Text = "Offline";
-                _ = Results[2] == "online" ? status.ForeColor = System.Drawing.Color.Green : status.ForeColor = System.Drawing.Color.Red;
-                _ = Results[2] == "online" ? players.Text = $"{Results[1]} / {Results[3]}" : players.Text = "0";
-                _ = Results[2] == "online" ? players.ForeColor = System.Drawing.Color.Green : players.ForeColor = System.Drawing.Color.Red;
-                _ = Results[2] == "online" ? time.Text = Results[6] : time.Text = " ";
-                _ = Results[2] == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = " ";
-            });
+            try
+            {
+                Results.TryGetValue(Data.Ip, out var ip);
+                Results.TryGetValue(Data.Port, out var port);
+                Results.TryGetValue(Data.Name, out var title);
+                Results.TryGetValue(Data.Status, out var serverStatus);
+                Results.TryGetValue(Data.Players, out var serverPlayers);
+                Results.TryGetValue(Data.MaxPlayers, out var serverMaxPlayers);
+                Results.TryGetValue(Data.Time, out var serverTime);
+
+                var color = serverStatus == "online" ? System.Drawing.Color.Green : System.Drawing.Color.Red;
+
+                UpdateUIElements = new Action(() => {
+                    name.Text = title;
+                    name.ForeColor = color;
+                    status.ForeColor = color;
+                    players.ForeColor = color;
+                    _ = serverStatus == "online" ? status.Text = "Online" : status.Text = "Offline";
+                    _ = serverStatus == "online" ? players.Text = $"{serverPlayers} / {serverMaxPlayers}" : players.Text = "0";
+                    _ = serverStatus == "online" ? time.Text = serverTime : time.Text = "00:00";
+                    _ = serverStatus == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = String.Empty;
+                });
+
+                if (overlayEnabled)
+                {
+                    ol.Name = title;
+                    ol.Status = serverStatus;
+                    ol.Players = $"{serverPlayers} / {serverMaxPlayers}";
+                    ol.Time = serverTime;
+                    ol.Ping = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : String.Empty;
+                }
+            } catch (System.NullReferenceException)
+            {
+                MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             // Run on UI thread
             this.BeginInvoke(UpdateUIElements);
-
-            if (overlayEnabled)
-            {
-                ol.Name = Results[0];
-                ol.Status = Results[2];
-                ol.Players = $"{Results[1]} / {Results[3]}"; 
-                ol.Time = Results[6];
-                ol.Ping = ServerData.Ping(ip, 4).ToString();
-            }
-
             this.BeginInvoke(new Action(() => { searchbutton.Enabled = true; }));
         }
 
         private string IterateResults(List<Server> servers)
         {
-            if (servers is not null)
+            if (servers is null) return this.ServerID;
+
+            foreach (Server server in servers)
             {
-                foreach (Server server in servers)
+                DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                if (dialogResult == DialogResult.Yes)
                 {
-                    DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        return server.ID;
-                    }
-                    else if (dialogResult == DialogResult.Cancel)
-                    {
-                        break;
-                    }
+                    return server.ID;
+                }
+                else if (dialogResult == DialogResult.Cancel)
+                {
+                    break;
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -159,12 +173,14 @@ namespace SCUMServerListener
         private async void updateTimer_Tick(object sender, EventArgs e)
         {
             if (ol is not null)
+            {
                 if (!ol.overlayAllWindows)
                 {
                     ol.SetWindowVisibility();
                     if (ol.HasProcessExited())
                         StopOverlay();
                 }
+            }
 
             if (counter >= 30)
             {
@@ -176,15 +192,9 @@ namespace SCUMServerListener
             update_progbar.Value = counter;
         }
 
-        private string loadDefault()
-        {
-            return SettingsManager.LoadDefault();
-        }
+        private string loadDefault() => SettingsManager.LoadDefault();
 
-        private void setdft_btn_Click(object sender, EventArgs e)
-        {
-            SettingsManager.SetDefault(this.ServerID);
-        }
+        private void setdft_btn_Click(object sender, EventArgs e) => SettingsManager.SetDefault(this.ServerID);
 
         private void btn_overlay_Click(object sender, EventArgs e)
         {
