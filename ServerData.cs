@@ -12,7 +12,6 @@ using System.Net.Http;
 
 namespace ServerListener
 {
-
     public class Server
     {
         private string _name;
