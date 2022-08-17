@@ -61,9 +61,16 @@ namespace SCUMServerListener
             allwindows_tooltip.ShowAlways = true;
             allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
 
-            cb_bgColor.SelectedItem = settings["bgColor"];
-            cb_serveroffline.SelectedItem = settings["offlineColor"];
-            cb_serveronline.SelectedItem = settings["onlineColor"];
+            cb_bgColor.SelectedItem = FormatString(settings["bgColor"]);
+            cb_serveroffline.SelectedItem = FormatString(settings["offlineColor"]);
+            cb_serveronline.SelectedItem = FormatString(settings["onlineColor"]);
+        }
+
+        private string FormatString(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+
+            return value[0].ToString().ToUpper() + value.Substring(1).ToLower();
         }
 
         private void btn_save_Click(object sender, EventArgs e)
