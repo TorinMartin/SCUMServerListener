@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SCUMServerListener
@@ -35,8 +29,17 @@ namespace SCUMServerListener
             }
             settings = SettingsManager.LoadAllSettings();
 
-            tb_po1.Text = settings["posx"];
-            tb_po2.Text = settings["posy"];
+            if (ol is null)
+            {
+                tb_po1.Text = settings["posx"];
+                tb_po2.Text = settings["posy"];
+            }
+            else
+            {
+                tb_po1.Text = this.x.ToString();
+                tb_po2.Text = this.y.ToString();
+            }
+
             this.x = int.Parse(settings["posx"]);
             this.y = int.Parse(settings["posy"]);
 
