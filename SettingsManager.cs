@@ -79,8 +79,8 @@ namespace SCUMServerListener
 
         public static void SaveAllSettings(bool windowPref, bool textPref, int x, int y, bool showName, bool showPlayers, bool showTime, bool showPing, string onlineCol, string offlineCol, string bgCol)
         {
-            string json = LoadJSON();
-            if (json != "")
+            var json = LoadJSON();
+            if (!string.IsNullOrEmpty(json))
             {
                 JObject settingsJob = JObject.Parse(json);
                 JObject settings = (JObject)settingsJob["settings"];
@@ -99,6 +99,20 @@ namespace SCUMServerListener
 
                 SaveSettings(settingsJob);
             }
+        }
+
+        public static void SaveCoordinates(int x, int y)
+        {
+            var json = LoadJSON();
+            if (string.IsNullOrEmpty(json)) return;
+
+            JObject settingsJob = JObject.Parse(json);
+            JObject settings = (JObject)settingsJob["settings"];
+
+            settings["posx"] = x.ToString();
+            settings["posy"] = y.ToString();
+
+            SaveSettings(settingsJob);
         }
 
         public static void SaveSettings(JObject settings)

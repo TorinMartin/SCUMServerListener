@@ -12,101 +12,62 @@ namespace SCUMServerListener
     public class Overlay : IDisposable
     {
 		private readonly GraphicsWindow _window;
-
 		private readonly Dictionary<string, SolidBrush> _brushes;
 		private readonly Dictionary<string, Font> _fonts;
+		private bool disposedValue;
+		private bool isDragging = false;
+		private IntPtr hWnd = IntPtr.Zero;
+		private string windowName = "SCUM  ";
+		private string className = "UnrealWindow";
+		private Process gameProcess;
+		private GUI gui;
 
 		public bool isCreated = false;
-
 		public bool disableBackground = true;
 		public bool overlayAllWindows = false;
 		public bool showName, showPlayers, showTime, showPing;
-
 		public string onlineColor, offlineColor, bgColor;
-
-		private IntPtr hWnd = IntPtr.Zero;
-		string windowName = "SCUM  ";
-		string className = "UnrealWindow";
-
-		private Process gameProcess = null;
-		private GUI gui;
-		private string name, players, status, time, ping;
-
-		int x = 20, y = 20;
+		public string Name, Players, Status, Time, Ping;
+		public int X = 20, Y = 20;
 
 		IDictionary<string, string> settings = new Dictionary<string, string>();
 
 		RECT rect;
 
-		public struct RECT
+		private struct RECT
 		{
 			public int left, top, right, bottom;
 		}
-
-		public string Name
+		private struct MOUSE
 		{
-			get { return this.name; }
-			set { this.name = value; }
-		}
-		public string Players
-		{
-			get { return this.players; }
-			set { this.players = value; }
-		}
-		public string Status
-		{
-			get { return this.status; }
-			set { this.status = value; }
-		}
-
-		public string Time
-		{
-			get { return this.time; }
-			set { this.time = value; }
-		}
-		public string Ping
-		{
-			get { return this.ping; }
-			set { this.ping = value; }
-		}
-		public int X
-		{
-			get { return this.x; }
-			set { this.x = value; }
-		}
-		public int Y
-		{
-			get { return this.y; }
-			set { this.y = value; }
-		}
-
-		public struct POINT
-        {
 			public int X;
 			public int Y;
-        }
+		}
 
 		[DllImport("user32.dll", SetLastError = true)]
-		static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+		private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
 		[DllImport("user32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+		private static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
 		private static extern IntPtr GetForegroundWindow();
+
+		[DllImport("user32.dll")]
+		private static extern bool SetForegroundWindow(IntPtr hWnd);
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
 		[DllImport("user32.dll")]
-		private static extern bool GetCursorPos(out POINT lpPoint);
+		private static extern bool GetCursorPos(out MOUSE mouse);
 
 		[DllImport("user32.dll")]
-		public static extern int GetAsyncKeyState(System.Windows.Forms.Keys vKey);
+		private static extern int GetAsyncKeyState(System.Windows.Forms.Keys vKey);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
-		static extern bool CloseHandle(IntPtr hHandle);
+		private static extern bool CloseHandle(IntPtr hHandle);
 
 		public Overlay(GUI gui)
 		{
@@ -123,6 +84,7 @@ namespace SCUMServerListener
 
 			settings = SettingsManager.LoadAllSettings();
 
+			// TODO: Exception handling / safety for parsing. TryParse rather than parse or try/catch
 			disableBackground = bool.Parse(settings["disableBackground"]);
 			overlayAllWindows = bool.Parse(settings["overlayAllWindows"]);
 
@@ -131,8 +93,8 @@ namespace SCUMServerListener
 			showTime = bool.Parse(settings["showTime"]);
 			showPing = bool.Parse(settings["showPing"]);
 
-			this.x = int.Parse(settings["posx"]);
-			this.y = int.Parse(settings["posy"]);
+			X = int.Parse(settings["posx"]);
+			Y = int.Parse(settings["posy"]);
 
 			onlineColor = settings["onlineColor"].ToLower();
 			offlineColor = settings["offlineColor"].ToLower();
@@ -201,8 +163,6 @@ namespace SCUMServerListener
 
 			_fonts["arial"] = gfx.CreateFont("Arial", 12);
 			_fonts["consolas"] = gfx.CreateFont("Consolas", 14);
-
-
 		}
 
 		private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
@@ -218,32 +178,32 @@ namespace SCUMServerListener
 			var infoText = "";
 
 			if (showName)
-				infoText += name;
+				infoText += Name;
 
 			if (showPlayers)
-				infoText += "\nPlayers: " + players;
+				infoText += "\nPlayers: " + Players;
 
 			if (showTime)
-				infoText += "\nTime: " + time;
+				infoText += "\nTime: " + Time;
 
 			if(showPing)
-				infoText += "\nPing: " + ping;
+				infoText += "\nPing: " + Ping;
 
 			gfx.ClearScene();
 
 			if (!disableBackground)
 			{
-				if (status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], this.x, this.y, infoText);
+				if (Status == "online")
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], X, Y, infoText);
 				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], this.x, this.y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], X, Y, infoText);
 			}
 			else
 			{
-				if (status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes[onlineColor], this.x, this.y, infoText);
+				if (Status == "online")
+					gfx.DrawText(_fonts["consolas"], _brushes[onlineColor], X, Y, infoText);
 				else
-					gfx.DrawText(_fonts["consolas"], _brushes[offlineColor], this.x, this.y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[offlineColor], X, Y, infoText);
 			}
 		}
 
@@ -256,10 +216,7 @@ namespace SCUMServerListener
 			}
 		}
 
-		public bool HasProcessExited()
-		{
-			return this.gameProcess.HasExited;
-		}
+		public bool HasProcessExited() => this.gameProcess.HasExited;
 
 		// Credit https://stackoverflow.com/questions/7162834/determine-if-current-application-is-activated-has-focus
 		private bool ApplicationIsActivated()
@@ -289,31 +246,32 @@ namespace SCUMServerListener
 			return null;
 		}
 
-		private bool isDragging = false;
 		public void DragOverlay()
         {
-			POINT lpPoint;
+			MOUSE mouse;
 			isDragging = true;
 
-			var worker = new Thread(() =>
+			if (!overlayAllWindows && hWnd != IntPtr.Zero)
+				SetForegroundWindow(hWnd);
+
+			var dragThread = new Thread(() =>
 			{
 				while (this.isDragging)
 				{
-					GetCursorPos(out lpPoint);
-					this.X = lpPoint.X;
-					this.Y = lpPoint.Y;
+					GetCursorPos(out mouse);
+					this.X = mouse.X;
+					this.Y = mouse.Y;
 					if (GetAsyncKeyState(Keys.LButton) < 0) {
 						break;
-                    }
+					}
 				}
 
-				SettingsManager.SaveAllSettings(overlayAllWindows, disableBackground, X, Y, showName, showPlayers, showTime, showPing, onlineColor, offlineColor, bgColor);
+				SettingsManager.SaveCoordinates(X, Y);
 				Action del = delegate() { gui.toggle_overlay_btn(true); };
 				gui.InvokeOnUIThread(del);
 			});
 
-			worker.Start();
-			
+			dragThread.Start();
         }
 
 		~Overlay()
@@ -322,14 +280,23 @@ namespace SCUMServerListener
 		}
 
 		#region IDisposable Support
-		private bool disposedValue;
 
 		protected virtual void Dispose(bool disposing)
 		{
 			if (isCreated)
 			{
 				if (hWnd != IntPtr.Zero)
-					CloseHandle(hWnd);
+                {
+					try
+                    {
+						CloseHandle(hWnd);
+					} 
+					catch (SEHException)
+                    {
+						// TODO: log error
+						hWnd = IntPtr.Zero;
+                    } 
+                }
 
 				if (!disposedValue)
 				{

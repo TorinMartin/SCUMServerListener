@@ -178,9 +178,18 @@ namespace SCUMServerListener
             {
                 if (!ol.overlayAllWindows)
                 {
-                    ol.SetWindowVisibility();
-                    if (ol.HasProcessExited())
+                    try
+                    {
+                        ol.SetWindowVisibility();
+                        if (ol.HasProcessExited())
+                            StopOverlay();
+                    }
+                    catch (System.ComponentModel.Win32Exception ex)
+                    {
                         StopOverlay();
+                        if (ex.Message.Contains("Access is denied"))
+                            MessageBox.Show("Please run as administrator in order for overlay to stick to SCUM game window!", "Access Denied!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
 
