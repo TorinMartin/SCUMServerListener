@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
@@ -31,7 +29,7 @@ namespace SCUMServerListener
 		string className = "UnrealWindow";
 
 		private Process gameProcess = null;
-
+		private GUI gui;
 		private string name, players, status, time, ping;
 
 		int x = 20, y = 20;
@@ -82,6 +80,12 @@ namespace SCUMServerListener
 			set { this.y = value; }
 		}
 
+		public struct POINT
+        {
+			public int X;
+			public int Y;
+        }
+
 		[DllImport("user32.dll", SetLastError = true)]
 		static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -89,17 +93,24 @@ namespace SCUMServerListener
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
-		[DllImport("kernel32.dll", SetLastError = true)]
-		static extern bool CloseHandle(IntPtr hHandle);
-
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
 		private static extern IntPtr GetForegroundWindow();
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
-		public Overlay()
+		[DllImport("user32.dll")]
+		private static extern bool GetCursorPos(out POINT lpPoint);
+
+		[DllImport("user32.dll")]
+		public static extern int GetAsyncKeyState(System.Windows.Forms.Keys vKey);
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern bool CloseHandle(IntPtr hHandle);
+
+		public Overlay(GUI gui)
 		{
+			this.gui = gui;
 			_brushes = new Dictionary<string, SolidBrush>();
 			_fonts = new Dictionary<string, Font>();
 
@@ -277,6 +288,33 @@ namespace SCUMServerListener
 			}
 			return null;
 		}
+
+		private bool isDragging = false;
+		public void DragOverlay()
+        {
+			POINT lpPoint;
+			isDragging = true;
+
+			var worker = new Thread(() =>
+			{
+				while (this.isDragging)
+				{
+					GetCursorPos(out lpPoint);
+					this.X = lpPoint.X;
+					this.Y = lpPoint.Y;
+					if (GetAsyncKeyState(Keys.LButton) < 0) {
+						break;
+                    }
+				}
+
+				SettingsManager.SaveAllSettings(overlayAllWindows, disableBackground, X, Y, showName, showPlayers, showTime, showPing, onlineColor, offlineColor, bgColor);
+				Action del = delegate() { gui.toggle_overlay_btn(true); };
+				gui.InvokeOnUIThread(del);
+			});
+
+			worker.Start();
+			
+        }
 
 		~Overlay()
 		{

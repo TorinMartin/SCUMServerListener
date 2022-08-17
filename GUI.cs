@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ServerListener;
 using System.Threading;
 
 namespace SCUMServerListener
@@ -28,11 +27,12 @@ namespace SCUMServerListener
             counter = 30;
             update_tooltip.ShowAlways = true;
             update_tooltip.SetToolTip(this.update_progbar, "Server Status will update every 30 seconds...");
+            btn_drag_overlay.Hide();
         }
 
         private async void StartOverlay()
         {
-            ol = new Overlay();
+            ol = new Overlay(this);
             t_overlay = new Thread(new ThreadStart(ol.Run));
             t_overlay.IsBackground = true;
             t_overlay.Start();
@@ -40,6 +40,7 @@ namespace SCUMServerListener
             {
                 overlayEnabled = true;
                 btn_overlay.Text = "Disable Overlay";
+                btn_drag_overlay.Show();
                 await Task.Run(() => Update());
             }
             else
@@ -53,6 +54,7 @@ namespace SCUMServerListener
             ol.Dispose();
             t_overlay.Join();
             btn_overlay.Text = "Enable Overlay";
+            btn_drag_overlay.Hide();
             overlayEnabled = false;
             ol = null;
         }
@@ -213,5 +215,18 @@ namespace SCUMServerListener
             settingsForm = new SettingsForm(ol);
             settingsForm.Show();
         }
+
+        private void btn_drag_overlay_Click(object sender, EventArgs e)
+        {
+            if (ol is null) return;
+
+            toggle_overlay_btn(false);
+            ol.DragOverlay();
+        }
+
+        public void toggle_overlay_btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
+
+        public void InvokeOnUIThread(Action del) => this.BeginInvoke(del);
+
     }
 }

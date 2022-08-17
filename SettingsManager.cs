@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SCUMServerListener
@@ -104,7 +100,6 @@ namespace SCUMServerListener
                 SaveSettings(settingsJob);
             }
         }
-
 
         public static void SaveSettings(JObject settings)
         {

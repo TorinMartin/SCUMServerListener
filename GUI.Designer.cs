@@ -51,6 +51,8 @@
             this.overlaySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label_time = new System.Windows.Forms.Label();
             this.time = new System.Windows.Forms.Label();
+            this.btn_drag_overlay = new System.Windows.Forms.Button();
+            this.drag_tooltip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -167,6 +169,10 @@
             this.update_progbar.Size = new System.Drawing.Size(216, 10);
             this.update_progbar.TabIndex = 11;
             // 
+            // update_tooltip
+            // 
+            this.update_tooltip.IsBalloon = true;
+            // 
             // setdft_btn
             // 
             this.setdft_btn.BackColor = System.Drawing.Color.Transparent;
@@ -254,6 +260,28 @@
             this.time.Size = new System.Drawing.Size(0, 15);
             this.time.TabIndex = 18;
             // 
+            // btn_drag_overlay
+            // 
+            this.btn_drag_overlay.Cursor = System.Windows.Forms.Cursors.Default;
+            this.btn_drag_overlay.Location = new System.Drawing.Point(129, 144);
+            this.btn_drag_overlay.Name = "btn_drag_overlay";
+            this.btn_drag_overlay.Size = new System.Drawing.Size(95, 23);
+            this.btn_drag_overlay.TabIndex = 19;
+            this.btn_drag_overlay.Text = "Drag Overlay";
+            this.drag_tooltip.SetToolTip(this.btn_drag_overlay, "Position overlay with your mouse! Left click to save!");
+            this.btn_drag_overlay.UseVisualStyleBackColor = true;
+            this.btn_drag_overlay.Click += new System.EventHandler(this.btn_drag_overlay_Click);
+            // 
+            // drag_tooltip
+            // 
+            this.drag_tooltip.AutoPopDelay = 5000;
+            this.drag_tooltip.InitialDelay = 50;
+            this.drag_tooltip.IsBalloon = true;
+            this.drag_tooltip.ReshowDelay = 10;
+            this.drag_tooltip.ShowAlways = true;
+            this.drag_tooltip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.drag_tooltip.ToolTipTitle = "Drag Overlay";
+            // 
             // GUI
             // 
             this.AcceptButton = this.searchbutton;
@@ -262,6 +290,7 @@
             this.BackColor = System.Drawing.Color.Black;
             this.BackgroundImage = global::SCUMServerListener.Properties.Resources.bg;
             this.ClientSize = new System.Drawing.Size(696, 305);
+            this.Controls.Add(this.btn_drag_overlay);
             this.Controls.Add(this.time);
             this.Controls.Add(this.label_time);
             this.Controls.Add(this.btn_overlay);
@@ -316,6 +345,8 @@
         private System.Windows.Forms.ToolStripMenuItem overlaySettingsToolStripMenuItem;
         private System.Windows.Forms.Label label_time;
         private System.Windows.Forms.Label time;
+        private System.Windows.Forms.Button btn_drag_overlay;
+        private System.Windows.Forms.ToolTip drag_tooltip;
     }
 }
 
