@@ -4,7 +4,7 @@ An application to display the player count and ping of a SCUM game server. The i
 
 ![Application Photo](https://i.imgur.com/kY6Zvfb.png)
 
-###### Experimental Dragging Overlay Feature
+###### Dragging Overlay Feature
 ![Application Photo](https://i.imgur.com/GAtbmj2.gif)
 
 ![Application Photo](https://i.imgur.com/AuxnmSl.png)
