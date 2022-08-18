@@ -8,70 +8,75 @@ namespace SCUMServerListener
 {
     public partial class GUI : Form
     {
-        private string ServerID = "16315624";
-        private int counter = 0;
+        private const int UpdateAtSeconds = 30;
+
+        private string ServerID;
+        private int counter;
+        private bool overlayEnabled;
         private System.Windows.Forms.Timer updateTimer;
-
         private SettingsForm settingsForm;
-
-        private Thread t_overlay;
-        private Overlay ol;
-        private bool overlayEnabled = false;
+        private Thread overlayThread;
+        private Overlay overlay;
 
         public GUI()
-        {
+        { 
             InitializeComponent();
-            this.MaximizeBox = false; 
-            this.ServerID = loadDefault();
+            ServerID = loadDefault();
+            update_progbar.Maximum = UpdateAtSeconds;
+            update_progbar.Value = 0;
             CreateTimer();
             counter = 30;
-            update_tooltip.ShowAlways = true;
-            update_tooltip.SetToolTip(this.update_progbar, "Server Status will update every 30 seconds...");
-            btn_drag_overlay.Hide();
+            overlayEnabled = false;
         }
 
-        private async void StartOverlay()
+        private void StartOverlay()
         {
-            ol = new Overlay(this);
-            t_overlay = new Thread(new ThreadStart(ol.Run));
-            t_overlay.IsBackground = true;
-            t_overlay.Start();
-            if (ol.isCreated)
+            if (overlay is not null)
             {
-                overlayEnabled = true;
-                btn_overlay.Text = "Disable Overlay";
-                btn_drag_overlay.Show();
-                await Task.Run(() => Update());
+                if (overlayThread.IsAlive)
+                    StopOverlay();
+                else
+                    overlay.Dispose();
             }
-            else
+
+            overlay = new Overlay(this);
+
+            overlayThread = new Thread(overlay.Run) { IsBackground = true };
+            overlayThread.Start();
+
+            if (!overlay.isCreated)
             {
                 StopOverlay();
+                return;
             }
+
+            overlayEnabled = true;
+            btn_overlay.Text = "Disable Overlay";
+            btn_drag_overlay.Show();
+            Task.Run(() => Update());
         }
 
         private void StopOverlay()
         {
-            ol.Dispose();
-            t_overlay.Join();
+            overlay.Dispose();
+            overlayThread.Join();
+            overlayEnabled = false;
+            overlay = null;
             btn_overlay.Text = "Enable Overlay";
             btn_drag_overlay.Hide();
-            overlayEnabled = false;
-            ol = null;
         }
 
         private void CreateTimer()
         {
-            updateTimer = new System.Windows.Forms.Timer();
+            updateTimer = new System.Windows.Forms.Timer() { Interval = 1000 };
             updateTimer.Tick += new EventHandler(updateTimer_Tick);
-            updateTimer.Interval = 1000;
             updateTimer.Start();
-            update_progbar.Maximum = 30;
-            update_progbar.Value = 0;
         }
 
         private void Update()
         {
-            Dictionary<Data, string>? Results;
+            Dictionary<Data, string> Results;
+
             if(!ServerData.RetrieveData(this.ServerID, out Results) || Results is null || Results.Count == 0)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -91,6 +96,7 @@ namespace SCUMServerListener
                 Results.TryGetValue(Data.Time, out var serverTime);
 
                 var color = serverStatus == "online" ? System.Drawing.Color.Green : System.Drawing.Color.Red;
+                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : String.Empty;
 
                 UpdateUIElements = new Action(() => {
                     name.Text = title;
@@ -100,33 +106,34 @@ namespace SCUMServerListener
                     _ = serverStatus == "online" ? status.Text = "Online" : status.Text = "Offline";
                     _ = serverStatus == "online" ? players.Text = $"{serverPlayers} / {serverMaxPlayers}" : players.Text = "0";
                     _ = serverStatus == "online" ? time.Text = serverTime : time.Text = "00:00";
-                    _ = serverStatus == "online" ? Ping.Text = ServerData.Ping(ip, 4).ToString() : Ping.Text = String.Empty;
+                    Ping.Text = serverPing;
                 });
+
+                if (!searchbutton.Enabled) searchbutton.Enabled = true;
 
                 if (overlayEnabled)
                 {
-                    ol.Name = title;
-                    ol.Status = serverStatus;
-                    ol.Players = $"{serverPlayers} / {serverMaxPlayers}";
-                    ol.Time = serverTime;
-                    ol.Ping = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : String.Empty;
+                    overlay.Name = title;
+                    overlay.Status = serverStatus;
+                    overlay.Players = $"{serverPlayers} / {serverMaxPlayers}";
+                    overlay.Time = serverTime;
+                    overlay.Ping = serverPing;
                 }
             } catch (System.NullReferenceException)
             {
-                MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("There was a problem while retrieving server data!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // Run on UI thread
             this.BeginInvoke(UpdateUIElements);
-            this.BeginInvoke(new Action(() => { searchbutton.Enabled = true; }));
         }
 
         private string IterateResults(List<Server> servers)
         {
             if (servers is null) return this.ServerID;
 
-            foreach (Server server in servers)
+            foreach (var server in servers)
             {
                 DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                 if (dialogResult == DialogResult.Yes)
@@ -144,12 +151,12 @@ namespace SCUMServerListener
 
         private async void searchbutton_Click(object sender, EventArgs e)
         {
-            String SearchInput = searchbox.Text;
-            String LookUpString = ServerData.GetLookupString(SearchInput);
+            var searchInput = searchbox.Text;
+            var lookUpString = ServerData.GetLookupString(searchInput);
 
             List<Server> servers;
 
-            if(!ServerData.GetServers(LookUpString, out servers))
+            if(!ServerData.GetServers(lookUpString, out servers))
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -159,11 +166,7 @@ namespace SCUMServerListener
 
             updateTimer_Reset();
 
-            if (ServerID != "scum")
-            {
-                searchbutton.Enabled = false;
-                await Task.Run(() => Update());
-            }
+            await Task.Run(() => Update());
         }
 
         private void updateTimer_Reset()
@@ -172,35 +175,33 @@ namespace SCUMServerListener
             counter = 0;
         }
 
-        private async void updateTimer_Tick(object sender, EventArgs e)
+        private void updateTimer_Tick(object sender, EventArgs e)
         {
-            if (ol is not null)
-            {
-                if (!ol.overlayAllWindows)
-                {
-                    try
-                    {
-                        ol.SetWindowVisibility();
-                        if (ol.HasProcessExited())
-                            StopOverlay();
-                    }
-                    catch (System.ComponentModel.Win32Exception ex)
-                    {
-                        StopOverlay();
-                        if (ex.Message.Contains("Access is denied"))
-                            MessageBox.Show("Please run as administrator in order for overlay to stick to SCUM game window!", "Access Denied!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-
             if (counter >= 30)
             {
                 update_progbar.Value = 0;
                 counter = 0;
-                await Task.Run(() => Update()); 
+                Task.Run(() => Update());
             }
             counter++;
             update_progbar.Value = counter;
+
+            if (overlayEnabled && overlay is not null)
+            {
+                if (overlay.overlayAllWindows) return;
+                try
+                {
+                    overlay.SetWindowVisibility();
+                    if (overlay.HasProcessExited())
+                        StopOverlay();
+                }
+                catch (System.ComponentModel.Win32Exception ex)
+                {
+                    StopOverlay();
+                    if (ex.Message.Contains("Access is denied"))
+                        MessageBox.Show("Please run as administrator in order for overlay to stick to SCUM game window!", "Access Denied!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private string loadDefault() => SettingsManager.LoadDefault();
@@ -221,16 +222,16 @@ namespace SCUMServerListener
 
         private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            settingsForm = new SettingsForm(ol);
+            settingsForm = new SettingsForm(overlay);
             settingsForm.Show();
         }
 
         private void btn_drag_overlay_Click(object sender, EventArgs e)
         {
-            if (ol is null) return;
+            if (overlay is null || !overlayEnabled) return;
 
             toggle_overlay_btn(false);
-            ol.DragOverlay();
+            overlay.DragOverlay();
         }
 
         public void toggle_overlay_btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
