@@ -168,10 +168,7 @@
             this.update_progbar.Name = "update_progbar";
             this.update_progbar.Size = new System.Drawing.Size(216, 10);
             this.update_progbar.TabIndex = 11;
-            // 
-            // update_tooltip
-            // 
-            this.update_tooltip.IsBalloon = true;
+            this.update_tooltip.SetToolTip(this.update_progbar, "Server Status will update every 30 seconds...");
             // 
             // setdft_btn
             // 
@@ -270,6 +267,7 @@
             this.btn_drag_overlay.Text = "Drag Overlay";
             this.drag_tooltip.SetToolTip(this.btn_drag_overlay, "Position overlay with your mouse! Left click to save!");
             this.btn_drag_overlay.UseVisualStyleBackColor = true;
+            this.btn_drag_overlay.Visible = false;
             this.btn_drag_overlay.Click += new System.EventHandler(this.btn_drag_overlay_Click);
             // 
             // drag_tooltip
@@ -312,6 +310,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
+            this.MaximizeBox = false;
             this.Name = "GUI";
             this.Text = "SCUM Server Listener";
             ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).EndInit();
