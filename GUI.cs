@@ -129,7 +129,7 @@ namespace SCUMServerListener
             this.BeginInvoke(UpdateUIElements);
         }
 
-        private string IterateResults(List<Server> servers)
+        private string IterateResults(IEnumerable<dynamic> servers)
         {
             if (servers is null) return this.ServerID;
 
@@ -154,9 +154,7 @@ namespace SCUMServerListener
             var searchInput = searchbox.Text;
             var lookUpString = ServerData.GetLookupString(searchInput);
 
-            List<Server> servers;
-
-            if(!ServerData.GetServers(lookUpString, out servers))
+            if(!ServerData.GetServers(lookUpString, out var servers))
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;

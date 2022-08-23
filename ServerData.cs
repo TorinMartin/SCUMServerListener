@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
-using System.Net.Http;
 
 namespace SCUMServerListener
 {
@@ -40,78 +36,62 @@ namespace SCUMServerListener
 
     public static class ServerData
     {
-        public static string GetLookupString(string serverString)
+        private const string apiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
+        private const string genApiUrl = "https://api.battlemetrics.com/servers/";
+
+        public static string GetLookupString(string serverString) => $"{apiUrl}{serverString.Replace(" ", "%20")}";
+
+        public static bool GetServers(string lookUpString, out IEnumerable<dynamic> results)
         {
-            const string apiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
+            results = new List<dynamic>();
 
-            serverString = serverString.Replace(" ", "%20");
-
-            return $"{apiUrl}{serverString}";
-        }
-
-        public static bool GetServers(string lookUpString, out List<Server> results)
-        {
-            string? json;
-
-            results = new List<Server>();
-
-            using (WebClient client = new WebClient())
+            using WebClient client = new WebClient();
+            try
             {
-                try
-                {
-                    json = client.DownloadString(lookUpString);
+                var json = client.DownloadString(lookUpString);
 
-                    if (json is null) return false;
+                if (string.IsNullOrEmpty(json)) return false;
 
-                    dynamic dataSet = JObject.Parse(json);
-                    var servers = dataSet["data"];
+                dynamic resultObj = JObject.Parse(json);
+                IEnumerable<dynamic> servers = resultObj["data"];
 
-                    foreach (var server in servers)
-                    {
-                        results.Add(new Server(server["id"].ToString(), server["attributes"]["name"].ToString()));
-                    }
-                }
-                catch (WebException)
-                {
-                    return false;
-                }
-                return true;
+                results = servers.Select(server => new Server(server["id"].ToString(), server["attributes"]["name"].ToString()));
             }
+            catch (WebException)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static bool RetrieveData(string serverId, out Dictionary<Data, string> results)
         {
-            string? data;
-            const string apiUrl = "https://api.battlemetrics.com/servers/";
             results = new();
 
-            using (WebClient client = new WebClient())
+            using WebClient client = new WebClient();
+            try
             {
-                try
-                {
-                    data = client.DownloadString($"{apiUrl}{serverId}");
+                var data = client.DownloadString($"{genApiUrl}{serverId}");
 
-                    if (data is null) return false;
+                if (data is null) return false;
 
-                    dynamic result = JsonConvert.DeserializeObject(data);
+                dynamic result = JsonConvert.DeserializeObject(data);
 
-                    results.Add(Data.Name, result["data"]["attributes"]["name"].ToString());
-                    results.Add(Data.Players, result["data"]["attributes"]["players"].ToString());
-                    results.Add(Data.Status, result["data"]["attributes"]["status"].ToString());
-                    results.Add(Data.MaxPlayers, result["data"]["attributes"]["maxPlayers"].ToString());
-                    results.Add(Data.Ip, result["data"]["attributes"]["ip"].ToString());
-                    results.Add(Data.Port, result["data"]["attributes"]["port"].ToString());
-                    results.Add(Data.Time, result["data"]["attributes"]["details"]["time"].ToString());
+                results.Add(Data.Name, result["data"]["attributes"]["name"].ToString());
+                results.Add(Data.Players, result["data"]["attributes"]["players"].ToString());
+                results.Add(Data.Status, result["data"]["attributes"]["status"].ToString());
+                results.Add(Data.MaxPlayers, result["data"]["attributes"]["maxPlayers"].ToString());
+                results.Add(Data.Ip, result["data"]["attributes"]["ip"].ToString());
+                results.Add(Data.Port, result["data"]["attributes"]["port"].ToString());
+                results.Add(Data.Time, result["data"]["attributes"]["details"]["time"].ToString());
 
-                    return true;
-
-                }
-                catch (Exception ex)
-                {
-                    if(ex is WebException or System.Net.Sockets.SocketException)
-                        return false;
-                    throw;
-                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is WebException or System.Net.Sockets.SocketException)
+                    return false;
+                throw;
             }
         }
 
