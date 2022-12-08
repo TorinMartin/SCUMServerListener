@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace SCUMServerListener
 {
     public partial class SettingsForm : Form
     {
-        private bool disableBackground = false;
-        private bool overlayAll = false;
-        private int x = 20;
-        private int y = 20;
-        private bool showName, showPlayers, showTime, showPing;
-        private string serverOfflineColor, serverOnlineColor, backgroundColor;
-
         private Overlay ol;
 
         public SettingsForm(Overlay ol)
@@ -22,40 +14,16 @@ namespace SCUMServerListener
             this.MinimizeBox = false;
             this.ol = ol;
 
-            if(ol != null)
-            {
-                this.x = ol.X;
-                this.y = ol.Y;
-            }
+            tb_po1.Text = AppSettings.Instance.PositionX.ToString();
+            tb_po2.Text = AppSettings.Instance.PositionY.ToString();
 
-            if (ol is null)
-            {
-                tb_po1.Text = AppSettings.Instance.PositionX.ToString();
-                tb_po2.Text = AppSettings.Instance.PositionY.ToString();
-            }
-            else
-            {
-                tb_po1.Text = this.x.ToString();
-                tb_po2.Text = this.y.ToString();
-            }
+            cb_name.Checked = AppSettings.Instance.ShowName;
+            cb_players.Checked = AppSettings.Instance.ShowPlayers;
+            cb_time.Checked = AppSettings.Instance.ShowTime;
+            cb_ping.Checked = AppSettings.Instance.ShowPing;
+            cb_allwindows.Checked = AppSettings.Instance.OverlayAllWindows;
+            cb_background.Checked = AppSettings.Instance.DisableBackground;
 
-            this.x = AppSettings.Instance.PositionX;
-            this.y = AppSettings.Instance.PositionY;
-
-            overlayAll = AppSettings.Instance.OverlayAllWindows;
-            disableBackground = AppSettings.Instance.DisableBackground;
-
-            showName = AppSettings.Instance.ShowName;
-            showPlayers = AppSettings.Instance.ShowPlayers;
-            showTime = AppSettings.Instance.ShowTime;
-            showPing = AppSettings.Instance.ShowPing;
-
-            cb_name.Checked = showName;
-            cb_players.Checked = showPlayers;
-            cb_time.Checked = showTime;
-            cb_ping.Checked = showPing;
-            cb_allwindows.Checked = overlayAll;
-            cb_background.Checked = disableBackground;
 
             allwindows_tooltip.ShowAlways = true;
             allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
@@ -74,30 +42,26 @@ namespace SCUMServerListener
 
         private void btn_save_Click(object sender, EventArgs e)
         {
-
-            disableBackground = cb_background.Checked;
-            overlayAll = cb_allwindows.Checked;
-            showName = cb_name.Checked;
-            showPlayers = cb_players.Checked;
-            showTime = cb_time.Checked;
-            showPing = cb_ping.Checked;
-            serverOnlineColor = cb_serveronline.Text;
-            serverOfflineColor = cb_serveroffline.Text;
-            backgroundColor = cb_bgColor.Text;
-
-            if (!int.TryParse(tb_po1.Text, out x) || !int.TryParse(tb_po2.Text, out y))
+            if (!int.TryParse(tb_po1.Text, out var x))
             {
-                MessageBox.Show("Position Must Be Numeric!");
+                MessageBox.Show("Position X Must Be Numeric!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
-            AppSettings.Instance.OverlayAllWindows = overlayAll;
-            AppSettings.Instance.DisableBackground = disableBackground;
+            if(!int.TryParse(tb_po2.Text, out var y))
+            {
+                MessageBox.Show("Position Y Must Be Numeric!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            AppSettings.Instance.OverlayAllWindows = cb_allwindows.Checked;
+            AppSettings.Instance.DisableBackground = cb_background.Checked;
             AppSettings.Instance.PositionX = x;
             AppSettings.Instance.PositionY = y;
-            AppSettings.Instance.ShowName = showName;
-            AppSettings.Instance.ShowPlayers = showPlayers;
-            AppSettings.Instance.ShowTime = showTime;
-            AppSettings.Instance.ShowPing = showPing;
+            AppSettings.Instance.ShowName = cb_name.Checked;
+            AppSettings.Instance.ShowPlayers = cb_players.Checked;
+            AppSettings.Instance.ShowTime = cb_time.Checked;
+            AppSettings.Instance.ShowPing = cb_ping.Checked;
             AppSettings.Instance.OnlineColor = cb_serveronline.Text.ToLower();
             AppSettings.Instance.OfflineColor = cb_serveroffline.Text.ToLower();
             AppSettings.Instance.BackgroundColor = cb_bgColor.Text.ToLower();
@@ -108,34 +72,34 @@ namespace SCUMServerListener
 
         private void btn_up_Click(object sender, EventArgs e)
         {
-            y -= 10;
-            tb_po2.Text = y.ToString();
+            AppSettings.Instance.PositionY -= 10;
+            tb_po2.Text = AppSettings.Instance.PositionY.ToString();
             if (ol != null)
-                ol.Y = y;
+                ol.Y = AppSettings.Instance.PositionY;
         }
 
         private void btn_right_Click(object sender, EventArgs e)
         {
-            x += 10;
-            tb_po1.Text = x.ToString();
+            AppSettings.Instance.PositionX += 10;
+            tb_po1.Text = AppSettings.Instance.PositionX.ToString();
             if (ol != null)
-                ol.X = x;
+                ol.X = AppSettings.Instance.PositionX;
         }
 
         private void btn_down_Click(object sender, EventArgs e)
         {
-            y += 10;
-            tb_po2.Text = y.ToString();
+            AppSettings.Instance.PositionY += 10;
+            tb_po2.Text = AppSettings.Instance.PositionY.ToString();
             if (ol != null)
-                ol.Y = y;
+                ol.Y = AppSettings.Instance.PositionY;
         }
 
         private void btn_left_Click(object sender, EventArgs e)
         {
-            x -= 10;
-            tb_po1.Text = x.ToString();
+            AppSettings.Instance.PositionX -= 10;
+            tb_po1.Text = AppSettings.Instance.PositionX.ToString();
             if (ol != null)
-                ol.X = x;
+                ol.X = AppSettings.Instance.PositionX;
         }
     }
 }
