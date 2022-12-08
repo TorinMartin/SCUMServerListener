@@ -21,7 +21,7 @@ namespace SCUMServerListener
         public GUI()
         { 
             InitializeComponent();
-            ServerID = loadDefault();
+            ServerID = AppSettings.Instance.DefaultServerId;
             update_progbar.Maximum = UpdateAtSeconds;
             update_progbar.Value = 0;
             CreateTimer();
@@ -96,13 +96,14 @@ namespace SCUMServerListener
                 Results.TryGetValue(Data.Time, out var serverTime);
 
                 var color = serverStatus == "online" ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : String.Empty;
+                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : string.Empty;
 
                 UpdateUIElements = new Action(() => {
                     name.Text = title;
                     name.ForeColor = color;
                     status.ForeColor = color;
                     players.ForeColor = color;
+                    time.ForeColor = color;
                     _ = serverStatus == "online" ? status.Text = "Online" : status.Text = "Offline";
                     _ = serverStatus == "online" ? players.Text = $"{serverPlayers} / {serverMaxPlayers}" : players.Text = "0";
                     _ = serverStatus == "online" ? time.Text = serverTime : time.Text = "00:00";
@@ -129,7 +130,7 @@ namespace SCUMServerListener
             this.BeginInvoke(UpdateUIElements);
         }
 
-        private string IterateResults(List<Server> servers)
+        private string IterateResults(IEnumerable<dynamic> servers)
         {
             if (servers is null) return this.ServerID;
 
@@ -154,9 +155,7 @@ namespace SCUMServerListener
             var searchInput = searchbox.Text;
             var lookUpString = ServerData.GetLookupString(searchInput);
 
-            List<Server> servers;
-
-            if(!ServerData.GetServers(lookUpString, out servers))
+            if(!ServerData.GetServers(lookUpString, out var servers))
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -188,7 +187,7 @@ namespace SCUMServerListener
 
             if (overlayEnabled && overlay is not null)
             {
-                if (overlay.overlayAllWindows) return;
+                if (AppSettings.Instance.OverlayAllWindows) return;
                 try
                 {
                     overlay.SetWindowVisibility();
@@ -204,9 +203,16 @@ namespace SCUMServerListener
             }
         }
 
-        private string loadDefault() => SettingsManager.LoadDefault();
-
-        private void setdft_btn_Click(object sender, EventArgs e) => SettingsManager.SetDefault(this.ServerID);
+        private void setdft_btn_Click(object sender, EventArgs e)
+        {
+            AppSettings.Instance.DefaultServerId = this.ServerID;
+            if (!Configuration.Save(AppSettings.Instance))
+            {
+                MessageBox.Show("Unable to save default server!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+        }
 
         private void btn_overlay_Click(object sender, EventArgs e)
         {
