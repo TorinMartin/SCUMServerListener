@@ -1,6 +1,5 @@
 packages/
 .vs/
-Properties/
 obj/
 bin/
 MigrationBackup/
