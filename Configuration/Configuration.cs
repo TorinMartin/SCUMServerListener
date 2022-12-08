@@ -7,7 +7,7 @@ namespace SCUMServerListener
 {
     static internal class Configuration
     {
-        private const string SettingsFileName = "appsettings.json";
+        private const string SettingsFileName = "Configuration\\appsettings.json";
 
         public static AppSettings Load() {
             IConfigurationRoot configuration = null;
@@ -21,7 +21,7 @@ namespace SCUMServerListener
             }
             catch (Exception ex)
             {
-                if (ex is not FileNotFoundException)
+                if (ex is FileNotFoundException)
                 {
                     throw new Exception("Something went wrong");
                 }
