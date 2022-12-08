@@ -1,7 +1,8 @@
 ﻿namespace SCUMServerListener
 {
-    public class AppSettings
+    public sealed class AppSettings
     {
+        public static readonly AppSettings Instance = Configuration.Load();
         public string DefaultServerId { get; set; } = "16315624";
         public int PositionX { get; set; } = 15;
         public int PositionY { get; set; } = 15;
@@ -14,5 +15,7 @@
         public string OnlineColor { get; set; } = "Green";
         public string OfflineColor { get; set; } = "Red";
         public string BackgroundColor { get; set; } = "Dark";
+
+        static AppSettings() { }
     }
 }

@@ -18,13 +18,10 @@ namespace SCUMServerListener
         private Thread overlayThread;
         private Overlay overlay;
 
-        public AppSettings appSettings;
-
         public GUI()
         { 
             InitializeComponent();
-            appSettings = Configuration.Load();
-            ServerID = appSettings.DefaultServerId;
+            ServerID = AppSettings.Instance.DefaultServerId;
             update_progbar.Maximum = UpdateAtSeconds;
             update_progbar.Value = 0;
             CreateTimer();
@@ -189,7 +186,7 @@ namespace SCUMServerListener
 
             if (overlayEnabled && overlay is not null)
             {
-                if (appSettings.OverlayAllWindows) return;
+                if (AppSettings.Instance.OverlayAllWindows) return;
                 try
                 {
                     overlay.SetWindowVisibility();
@@ -207,8 +204,8 @@ namespace SCUMServerListener
 
         private void setdft_btn_Click(object sender, EventArgs e)
         {
-            appSettings.DefaultServerId = this.ServerID;
-            if (!Configuration.Save(appSettings))
+            AppSettings.Instance.DefaultServerId = this.ServerID;
+            if (!Configuration.Save(AppSettings.Instance))
             {
                 MessageBox.Show("Unable to save default server!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -230,7 +227,7 @@ namespace SCUMServerListener
 
         private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            settingsForm = new SettingsForm(overlay, this);
+            settingsForm = new SettingsForm(overlay);
             settingsForm.Show();
         }
 

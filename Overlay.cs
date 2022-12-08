@@ -78,7 +78,7 @@ namespace SCUMServerListener
 
 			try
 			{
-				if (!gui.appSettings.OverlayAllWindows)
+				if (!AppSettings.Instance.OverlayAllWindows)
 				{
 					hWnd = FindWindow(className, windowName);
 					GetWindowRect(hWnd, out rect);
@@ -99,7 +99,7 @@ namespace SCUMServerListener
 					var width = Screen.PrimaryScreen.Bounds.Width;
 					var height = Screen.PrimaryScreen.Bounds.Height;
 
-					_window = new GraphicsWindow(gui.appSettings.PositionX, gui.appSettings.PositionY, width, height, gfx)
+					_window = new GraphicsWindow(AppSettings.Instance.PositionX, AppSettings.Instance.PositionY, width, height, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
@@ -153,33 +153,33 @@ namespace SCUMServerListener
 
 			var infoText = "";
 
-			if (gui.appSettings.ShowName)
+			if (AppSettings.Instance.ShowName)
 				infoText += Name;
 
-			if (gui.appSettings.ShowPlayers)
+			if (AppSettings.Instance.ShowPlayers)
 				infoText += "\nPlayers: " + Players;
 
-			if (gui.appSettings.ShowTime)
+			if (AppSettings.Instance.ShowTime)
 				infoText += "\nTime: " + Time;
 
-			if(gui.appSettings.ShowPing)
+			if(AppSettings.Instance.ShowPing)
 				infoText += "\nPing: " + Ping;
 
 			gfx.ClearScene();
 
-			if (!gui.appSettings.DisableBackground)
+			if (!AppSettings.Instance.DisableBackground)
 			{
 				if (Status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], _brushes[gui.appSettings.BackgroundColor], X, Y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
 				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], _brushes[gui.appSettings.BackgroundColor], X, Y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
 			}
 			else
 			{
 				if (Status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], X, Y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], X, Y, infoText);
 				else
-					gfx.DrawText(_fonts["consolas"], _brushes[gui.appSettings.OfflineColor], X, Y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OfflineColor], X, Y, infoText);
 			}
 		}
 
@@ -227,7 +227,7 @@ namespace SCUMServerListener
 			MOUSE mouse;
 			isDragging = true;
 
-			if (!gui.appSettings.OverlayAllWindows && hWnd != IntPtr.Zero)
+			if (!AppSettings.Instance.OverlayAllWindows && hWnd != IntPtr.Zero)
 				SetForegroundWindow(hWnd);
 
 			var dragThread = new Thread(() =>
@@ -242,9 +242,9 @@ namespace SCUMServerListener
 					}
 				}
 
-				gui.appSettings.PositionX = X;
-				gui.appSettings.PositionY = Y;
-				Configuration.Save(gui.appSettings);
+				AppSettings.Instance.PositionX = X;
+				AppSettings.Instance.PositionY = Y;
+				Configuration.Save(AppSettings.Instance);
 				Action del = delegate() { gui.toggle_overlay_btn(true); };
 				gui.InvokeOnUIThread(del);
 			});

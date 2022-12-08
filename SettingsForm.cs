@@ -14,26 +14,24 @@ namespace SCUMServerListener
         private string serverOfflineColor, serverOnlineColor, backgroundColor;
 
         private Overlay ol;
-        private GUI gui;
 
-        public SettingsForm(Overlay ol, GUI gui)
+        public SettingsForm(Overlay ol)
         {
             InitializeComponent();
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.ol = ol;
-            this.gui = gui;
+
             if(ol != null)
             {
                 this.x = ol.X;
                 this.y = ol.Y;
             }
-            //settings = SettingsManager.LoadAllSettings();
 
             if (ol is null)
             {
-                tb_po1.Text = gui.appSettings.PositionX.ToString();
-                tb_po2.Text = gui.appSettings.PositionY.ToString();
+                tb_po1.Text = AppSettings.Instance.PositionX.ToString();
+                tb_po2.Text = AppSettings.Instance.PositionY.ToString();
             }
             else
             {
@@ -41,16 +39,16 @@ namespace SCUMServerListener
                 tb_po2.Text = this.y.ToString();
             }
 
-            this.x = gui.appSettings.PositionX;
-            this.y = gui.appSettings.PositionY;
+            this.x = AppSettings.Instance.PositionX;
+            this.y = AppSettings.Instance.PositionY;
 
-            overlayAll = gui.appSettings.OverlayAllWindows;
-            disableBackground = gui.appSettings.DisableBackground;
+            overlayAll = AppSettings.Instance.OverlayAllWindows;
+            disableBackground = AppSettings.Instance.DisableBackground;
 
-            showName = gui.appSettings.ShowName;
-            showPlayers = gui.appSettings.ShowPlayers;
-            showTime = gui.appSettings.ShowTime;
-            showPing = gui.appSettings.ShowPing;
+            showName = AppSettings.Instance.ShowName;
+            showPlayers = AppSettings.Instance.ShowPlayers;
+            showTime = AppSettings.Instance.ShowTime;
+            showPing = AppSettings.Instance.ShowPing;
 
             cb_name.Checked = showName;
             cb_players.Checked = showPlayers;
@@ -62,9 +60,9 @@ namespace SCUMServerListener
             allwindows_tooltip.ShowAlways = true;
             allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
 
-            cb_bgColor.SelectedItem = FormatString(gui.appSettings.BackgroundColor);
-            cb_serveroffline.SelectedItem = FormatString(gui.appSettings.OfflineColor);
-            cb_serveronline.SelectedItem = FormatString(gui.appSettings.OnlineColor);
+            cb_bgColor.SelectedItem = FormatString(AppSettings.Instance.BackgroundColor);
+            cb_serveroffline.SelectedItem = FormatString(AppSettings.Instance.OfflineColor);
+            cb_serveronline.SelectedItem = FormatString(AppSettings.Instance.OnlineColor);
         }
 
         private string FormatString(string value)
@@ -92,19 +90,19 @@ namespace SCUMServerListener
                 MessageBox.Show("Position Must Be Numeric!");
             }
 
-            gui.appSettings.OverlayAllWindows = overlayAll;
-            gui.appSettings.DisableBackground = disableBackground;
-            gui.appSettings.PositionX = x;
-            gui.appSettings.PositionY = y;
-            gui.appSettings.ShowName = showName;
-            gui.appSettings.ShowPlayers = showPlayers;
-            gui.appSettings.ShowTime = showTime;
-            gui.appSettings.ShowPing = showPing;
-            gui.appSettings.OnlineColor = cb_serveronline.Text.ToLower();
-            gui.appSettings.OfflineColor = cb_serveroffline.Text.ToLower();
-            gui.appSettings.BackgroundColor = cb_bgColor.Text.ToLower();
+            AppSettings.Instance.OverlayAllWindows = overlayAll;
+            AppSettings.Instance.DisableBackground = disableBackground;
+            AppSettings.Instance.PositionX = x;
+            AppSettings.Instance.PositionY = y;
+            AppSettings.Instance.ShowName = showName;
+            AppSettings.Instance.ShowPlayers = showPlayers;
+            AppSettings.Instance.ShowTime = showTime;
+            AppSettings.Instance.ShowPing = showPing;
+            AppSettings.Instance.OnlineColor = cb_serveronline.Text.ToLower();
+            AppSettings.Instance.OfflineColor = cb_serveroffline.Text.ToLower();
+            AppSettings.Instance.BackgroundColor = cb_bgColor.Text.ToLower();
 
-            Configuration.Save(gui.appSettings);
+            Configuration.Save(AppSettings.Instance);
             MessageBox.Show("Settings Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
