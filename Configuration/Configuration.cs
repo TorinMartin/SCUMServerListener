@@ -21,7 +21,7 @@ namespace SCUMServerListener
             }
             catch (Exception ex)
             {
-                if (ex is FileNotFoundException)
+                if (ex is not FileNotFoundException)
                 {
                     throw new Exception("Something went wrong");
                 }
