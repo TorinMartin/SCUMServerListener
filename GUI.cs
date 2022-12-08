@@ -103,6 +103,7 @@ namespace SCUMServerListener
                     name.ForeColor = color;
                     status.ForeColor = color;
                     players.ForeColor = color;
+                    time.ForeColor = color;
                     _ = serverStatus == "online" ? status.Text = "Online" : status.Text = "Offline";
                     _ = serverStatus == "online" ? players.Text = $"{serverPlayers} / {serverMaxPlayers}" : players.Text = "0";
                     _ = serverStatus == "online" ? time.Text = serverTime : time.Text = "00:00";
