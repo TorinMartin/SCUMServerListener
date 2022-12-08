@@ -23,14 +23,8 @@ namespace SCUMServerListener
 		private GUI gui;
 
 		public bool isCreated = false;
-		public bool disableBackground = true;
-		public bool overlayAllWindows = false;
-		public bool showName, showPlayers, showTime, showPing;
-		public string onlineColor, offlineColor, bgColor;
 		public string Name, Players, Status, Time, Ping;
 		public int X = 20, Y = 20;
-
-		IDictionary<string, string> settings = new Dictionary<string, string>();
 
 		RECT rect;
 
@@ -82,27 +76,9 @@ namespace SCUMServerListener
 				TextAntiAliasing = true,
 			};
 
-			settings = SettingsManager.LoadAllSettings();
-
-			// TODO: Exception handling / safety for parsing. TryParse rather than parse or try/catch
-			disableBackground = bool.Parse(settings["disableBackground"]);
-			overlayAllWindows = bool.Parse(settings["overlayAllWindows"]);
-
-			showName = bool.Parse(settings["showName"]);
-			showPlayers = bool.Parse(settings["showPlayers"]);
-			showTime = bool.Parse(settings["showTime"]);
-			showPing = bool.Parse(settings["showPing"]);
-
-			X = int.Parse(settings["posx"]);
-			Y = int.Parse(settings["posy"]);
-
-			onlineColor = settings["onlineColor"].ToLower();
-			offlineColor = settings["offlineColor"].ToLower();
-			bgColor = settings["bgColor"].ToLower();
-
 			try
 			{
-				if (!overlayAllWindows)
+				if (!gui.appSettings.OverlayAllWindows)
 				{
 					hWnd = FindWindow(className, windowName);
 					GetWindowRect(hWnd, out rect);
@@ -123,7 +99,7 @@ namespace SCUMServerListener
 					var width = Screen.PrimaryScreen.Bounds.Width;
 					var height = Screen.PrimaryScreen.Bounds.Height;
 
-					_window = new GraphicsWindow(0, 0, width, height, gfx)
+					_window = new GraphicsWindow(gui.appSettings.PositionX, gui.appSettings.PositionY, width, height, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
@@ -177,33 +153,33 @@ namespace SCUMServerListener
 
 			var infoText = "";
 
-			if (showName)
+			if (gui.appSettings.ShowName)
 				infoText += Name;
 
-			if (showPlayers)
+			if (gui.appSettings.ShowPlayers)
 				infoText += "\nPlayers: " + Players;
 
-			if (showTime)
+			if (gui.appSettings.ShowTime)
 				infoText += "\nTime: " + Time;
 
-			if(showPing)
+			if(gui.appSettings.ShowPing)
 				infoText += "\nPing: " + Ping;
 
 			gfx.ClearScene();
 
-			if (!disableBackground)
+			if (!gui.appSettings.DisableBackground)
 			{
 				if (Status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], X, Y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], _brushes[gui.appSettings.BackgroundColor], X, Y, infoText);
 				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[onlineColor], _brushes[bgColor], X, Y, infoText);
+					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], _brushes[gui.appSettings.BackgroundColor], X, Y, infoText);
 			}
 			else
 			{
 				if (Status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes[onlineColor], X, Y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[gui.appSettings.OnlineColor], X, Y, infoText);
 				else
-					gfx.DrawText(_fonts["consolas"], _brushes[offlineColor], X, Y, infoText);
+					gfx.DrawText(_fonts["consolas"], _brushes[gui.appSettings.OfflineColor], X, Y, infoText);
 			}
 		}
 
@@ -251,7 +227,7 @@ namespace SCUMServerListener
 			MOUSE mouse;
 			isDragging = true;
 
-			if (!overlayAllWindows && hWnd != IntPtr.Zero)
+			if (!gui.appSettings.OverlayAllWindows && hWnd != IntPtr.Zero)
 				SetForegroundWindow(hWnd);
 
 			var dragThread = new Thread(() =>
@@ -266,7 +242,9 @@ namespace SCUMServerListener
 					}
 				}
 
-				SettingsManager.SaveCoordinates(X, Y);
+				gui.appSettings.PositionX = X;
+				gui.appSettings.PositionY = Y;
+				Configuration.Save(gui.appSettings);
 				Action del = delegate() { gui.toggle_overlay_btn(true); };
 				gui.InvokeOnUIThread(del);
 			});
