@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
-using System.IO;
 
 namespace SCUMServerListener
 {
@@ -97,7 +96,7 @@ namespace SCUMServerListener
                 Results.TryGetValue(Data.Time, out var serverTime);
 
                 var color = serverStatus == "online" ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : String.Empty;
+                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : string.Empty;
 
                 UpdateUIElements = new Action(() => {
                     name.Text = title;

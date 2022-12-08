@@ -43,9 +43,9 @@ namespace SCUMServerListener
                 using var writer = new StreamWriter(SettingsFileName);
                 writer.Write(json);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                if (ex is System.UnauthorizedAccessException or System.IO.DirectoryNotFoundException)
+                if (ex is UnauthorizedAccessException or DirectoryNotFoundException)
                 {
                     // display error
                 }
