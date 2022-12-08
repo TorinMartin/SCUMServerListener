@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.IO;
 using System.Text.Json;
 
@@ -9,14 +10,23 @@ namespace SCUMServerListener
         private const string SettingsFileName = "appsettings.json";
 
         public static AppSettings Load() {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(SettingsFileName)
-                .Build();
+            IConfigurationRoot configuration = null;
 
-            if (configuration is null) throw new System.NullReferenceException("Configuration was null");
-
-            return configuration.Get<AppSettings>() ?? new AppSettings();
+            try
+            {
+                configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile(SettingsFileName)
+                    .Build();
+            }
+            catch (Exception ex)
+            {
+                if (ex is not FileNotFoundException)
+                {
+                    throw new Exception("Something went wrong");
+                }
+            }
+            return configuration?.Get<AppSettings>() ?? new AppSettings();
         }
 
         public static bool Save(AppSettings appSettings)
