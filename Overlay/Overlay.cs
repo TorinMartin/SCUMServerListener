@@ -24,7 +24,7 @@ namespace SCUMServerListener
 
 		public bool isCreated = false;
 		public string Name, Players, Status, Time, Ping;
-		public int X = 20, Y = 20;
+		public int X = AppSettings.Instance.PositionX, Y = AppSettings.Instance.PositionY;
 
 		RECT rect;
 
@@ -99,7 +99,7 @@ namespace SCUMServerListener
 					var width = Screen.PrimaryScreen.Bounds.Width;
 					var height = Screen.PrimaryScreen.Bounds.Height;
 
-					_window = new GraphicsWindow(AppSettings.Instance.PositionX, AppSettings.Instance.PositionY, width, height, gfx)
+					_window = new GraphicsWindow(0, 0, width, height, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
