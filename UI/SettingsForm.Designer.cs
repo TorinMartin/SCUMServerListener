@@ -52,11 +52,15 @@
             this.cb_time = new System.Windows.Forms.CheckBox();
             this.cb_ping = new System.Windows.Forms.CheckBox();
             this.lbl_displayopt = new System.Windows.Forms.Label();
+            this.settingsBox = new System.Windows.Forms.GroupBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.settingsBox.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_save
             // 
-            this.btn_save.Location = new System.Drawing.Point(57, 400);
+            this.btn_save.Location = new System.Drawing.Point(6, 372);
             this.btn_save.Name = "btn_save";
             this.btn_save.Size = new System.Drawing.Size(75, 23);
             this.btn_save.TabIndex = 0;
@@ -67,7 +71,7 @@
             // cb_background
             // 
             this.cb_background.AutoSize = true;
-            this.cb_background.Location = new System.Drawing.Point(12, 26);
+            this.cb_background.Location = new System.Drawing.Point(6, 19);
             this.cb_background.Name = "cb_background";
             this.cb_background.Size = new System.Drawing.Size(146, 17);
             this.cb_background.TabIndex = 2;
@@ -77,7 +81,7 @@
             // cb_allwindows
             // 
             this.cb_allwindows.AutoSize = true;
-            this.cb_allwindows.Location = new System.Drawing.Point(12, 50);
+            this.cb_allwindows.Location = new System.Drawing.Point(6, 39);
             this.cb_allwindows.Name = "cb_allwindows";
             this.cb_allwindows.Size = new System.Drawing.Size(123, 17);
             this.cb_allwindows.TabIndex = 3;
@@ -96,7 +100,7 @@
             "White",
             "Cyan",
             "Black"});
-            this.cb_serveronline.Location = new System.Drawing.Point(12, 130);
+            this.cb_serveronline.Location = new System.Drawing.Point(6, 115);
             this.cb_serveronline.Name = "cb_serveronline";
             this.cb_serveronline.Size = new System.Drawing.Size(121, 21);
             this.cb_serveronline.TabIndex = 4;
@@ -104,7 +108,7 @@
             // lbl_color1
             // 
             this.lbl_color1.AutoSize = true;
-            this.lbl_color1.Location = new System.Drawing.Point(12, 114);
+            this.lbl_color1.Location = new System.Drawing.Point(3, 99);
             this.lbl_color1.Name = "lbl_color1";
             this.lbl_color1.Size = new System.Drawing.Size(98, 13);
             this.lbl_color1.TabIndex = 5;
@@ -113,7 +117,7 @@
             // lbl_color2
             // 
             this.lbl_color2.AutoSize = true;
-            this.lbl_color2.Location = new System.Drawing.Point(12, 159);
+            this.lbl_color2.Location = new System.Drawing.Point(3, 139);
             this.lbl_color2.Name = "lbl_color2";
             this.lbl_color2.Size = new System.Drawing.Size(98, 13);
             this.lbl_color2.TabIndex = 6;
@@ -131,7 +135,7 @@
             "White",
             "Cyan",
             "Black"});
-            this.cb_serveroffline.Location = new System.Drawing.Point(12, 175);
+            this.cb_serveroffline.Location = new System.Drawing.Point(6, 155);
             this.cb_serveroffline.Name = "cb_serveroffline";
             this.cb_serveroffline.Size = new System.Drawing.Size(121, 21);
             this.cb_serveroffline.TabIndex = 7;
@@ -139,7 +143,7 @@
             // lbl_coords
             // 
             this.lbl_coords.AutoSize = true;
-            this.lbl_coords.Location = new System.Drawing.Point(9, 275);
+            this.lbl_coords.Location = new System.Drawing.Point(3, 238);
             this.lbl_coords.Name = "lbl_coords";
             this.lbl_coords.Size = new System.Drawing.Size(83, 13);
             this.lbl_coords.TabIndex = 8;
@@ -147,14 +151,14 @@
             // 
             // tb_po1
             // 
-            this.tb_po1.Location = new System.Drawing.Point(12, 292);
+            this.tb_po1.Location = new System.Drawing.Point(6, 254);
             this.tb_po1.Name = "tb_po1";
             this.tb_po1.Size = new System.Drawing.Size(39, 20);
             this.tb_po1.TabIndex = 9;
             // 
             // tb_po2
             // 
-            this.tb_po2.Location = new System.Drawing.Point(57, 292);
+            this.tb_po2.Location = new System.Drawing.Point(53, 254);
             this.tb_po2.Name = "tb_po2";
             this.tb_po2.Size = new System.Drawing.Size(39, 20);
             this.tb_po2.TabIndex = 10;
@@ -173,7 +177,7 @@
             "White",
             "Cyan",
             "Black"});
-            this.cb_bgColor.Location = new System.Drawing.Point(12, 90);
+            this.cb_bgColor.Location = new System.Drawing.Point(6, 75);
             this.cb_bgColor.Name = "cb_bgColor";
             this.cb_bgColor.Size = new System.Drawing.Size(121, 21);
             this.cb_bgColor.TabIndex = 15;
@@ -181,7 +185,7 @@
             // lbl_bgcolor
             // 
             this.lbl_bgcolor.AutoSize = true;
-            this.lbl_bgcolor.Location = new System.Drawing.Point(15, 71);
+            this.lbl_bgcolor.Location = new System.Drawing.Point(3, 59);
             this.lbl_bgcolor.Name = "lbl_bgcolor";
             this.lbl_bgcolor.Size = new System.Drawing.Size(92, 13);
             this.lbl_bgcolor.TabIndex = 16;
@@ -190,7 +194,7 @@
             // btn_left
             // 
             this.btn_left.Image = global::SCUMServerListener.Properties.Resources.left_arrow_small;
-            this.btn_left.Location = new System.Drawing.Point(15, 335);
+            this.btn_left.Location = new System.Drawing.Point(18, 309);
             this.btn_left.Name = "btn_left";
             this.btn_left.Size = new System.Drawing.Size(27, 23);
             this.btn_left.TabIndex = 14;
@@ -200,7 +204,7 @@
             // btn_right
             // 
             this.btn_right.Image = global::SCUMServerListener.Properties.Resources.arrow_point_to_right_small;
-            this.btn_right.Location = new System.Drawing.Point(77, 335);
+            this.btn_right.Location = new System.Drawing.Point(65, 309);
             this.btn_right.Name = "btn_right";
             this.btn_right.Size = new System.Drawing.Size(27, 23);
             this.btn_right.TabIndex = 13;
@@ -210,7 +214,7 @@
             // btn_down
             // 
             this.btn_down.Image = global::SCUMServerListener.Properties.Resources.arrow_down_sign_to_navigate_small;
-            this.btn_down.Location = new System.Drawing.Point(46, 348);
+            this.btn_down.Location = new System.Drawing.Point(42, 338);
             this.btn_down.Name = "btn_down";
             this.btn_down.Size = new System.Drawing.Size(27, 23);
             this.btn_down.TabIndex = 12;
@@ -220,7 +224,7 @@
             // btn_up
             // 
             this.btn_up.Image = global::SCUMServerListener.Properties.Resources.navigate_up_arrow_small2;
-            this.btn_up.Location = new System.Drawing.Point(46, 318);
+            this.btn_up.Location = new System.Drawing.Point(42, 280);
             this.btn_up.Name = "btn_up";
             this.btn_up.Size = new System.Drawing.Size(27, 23);
             this.btn_up.TabIndex = 11;
@@ -230,7 +234,7 @@
             // cb_name
             // 
             this.cb_name.AutoSize = true;
-            this.cb_name.Location = new System.Drawing.Point(12, 219);
+            this.cb_name.Location = new System.Drawing.Point(6, 195);
             this.cb_name.Name = "cb_name";
             this.cb_name.Size = new System.Drawing.Size(88, 17);
             this.cb_name.TabIndex = 17;
@@ -240,7 +244,7 @@
             // cb_players
             // 
             this.cb_players.AutoSize = true;
-            this.cb_players.Location = new System.Drawing.Point(12, 243);
+            this.cb_players.Location = new System.Drawing.Point(6, 218);
             this.cb_players.Name = "cb_players";
             this.cb_players.Size = new System.Drawing.Size(86, 17);
             this.cb_players.TabIndex = 18;
@@ -250,7 +254,7 @@
             // cb_time
             // 
             this.cb_time.AutoSize = true;
-            this.cb_time.Location = new System.Drawing.Point(99, 219);
+            this.cb_time.Location = new System.Drawing.Point(92, 195);
             this.cb_time.Name = "cb_time";
             this.cb_time.Size = new System.Drawing.Size(49, 17);
             this.cb_time.TabIndex = 19;
@@ -260,7 +264,7 @@
             // cb_ping
             // 
             this.cb_ping.AutoSize = true;
-            this.cb_ping.Location = new System.Drawing.Point(99, 243);
+            this.cb_ping.Location = new System.Drawing.Point(92, 218);
             this.cb_ping.Name = "cb_ping";
             this.cb_ping.Size = new System.Drawing.Size(47, 17);
             this.cb_ping.TabIndex = 20;
@@ -270,44 +274,66 @@
             // lbl_displayopt
             // 
             this.lbl_displayopt.AutoSize = true;
-            this.lbl_displayopt.Location = new System.Drawing.Point(9, 203);
+            this.lbl_displayopt.Location = new System.Drawing.Point(3, 179);
             this.lbl_displayopt.Name = "lbl_displayopt";
             this.lbl_displayopt.Size = new System.Drawing.Size(80, 13);
             this.lbl_displayopt.TabIndex = 21;
             this.lbl_displayopt.Text = "Display Options";
             // 
+            // settingsBox
+            // 
+            this.settingsBox.BackColor = System.Drawing.Color.White;
+            this.settingsBox.Controls.Add(this.cb_background);
+            this.settingsBox.Controls.Add(this.btn_save);
+            this.settingsBox.Controls.Add(this.btn_down);
+            this.settingsBox.Controls.Add(this.btn_right);
+            this.settingsBox.Controls.Add(this.btn_left);
+            this.settingsBox.Controls.Add(this.cb_ping);
+            this.settingsBox.Controls.Add(this.lbl_displayopt);
+            this.settingsBox.Controls.Add(this.cb_time);
+            this.settingsBox.Controls.Add(this.btn_up);
+            this.settingsBox.Controls.Add(this.lbl_color2);
+            this.settingsBox.Controls.Add(this.tb_po2);
+            this.settingsBox.Controls.Add(this.cb_players);
+            this.settingsBox.Controls.Add(this.tb_po1);
+            this.settingsBox.Controls.Add(this.cb_serveroffline);
+            this.settingsBox.Controls.Add(this.lbl_coords);
+            this.settingsBox.Controls.Add(this.cb_name);
+            this.settingsBox.Controls.Add(this.cb_bgColor);
+            this.settingsBox.Controls.Add(this.lbl_bgcolor);
+            this.settingsBox.Controls.Add(this.cb_allwindows);
+            this.settingsBox.Controls.Add(this.lbl_color1);
+            this.settingsBox.Controls.Add(this.cb_serveronline);
+            this.settingsBox.Location = new System.Drawing.Point(3, 3);
+            this.settingsBox.Name = "settingsBox";
+            this.settingsBox.Size = new System.Drawing.Size(194, 401);
+            this.settingsBox.TabIndex = 22;
+            this.settingsBox.TabStop = false;
+            this.settingsBox.Text = "Settings";
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.settingsBox);
+            this.panel1.Location = new System.Drawing.Point(12, 12);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(200, 407);
+            this.panel1.TabIndex = 23;
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(212, 430);
-            this.Controls.Add(this.lbl_displayopt);
-            this.Controls.Add(this.cb_ping);
-            this.Controls.Add(this.cb_time);
-            this.Controls.Add(this.cb_players);
-            this.Controls.Add(this.cb_name);
-            this.Controls.Add(this.lbl_bgcolor);
-            this.Controls.Add(this.cb_bgColor);
-            this.Controls.Add(this.btn_left);
-            this.Controls.Add(this.btn_right);
-            this.Controls.Add(this.btn_down);
-            this.Controls.Add(this.btn_up);
-            this.Controls.Add(this.tb_po2);
-            this.Controls.Add(this.tb_po1);
-            this.Controls.Add(this.lbl_coords);
-            this.Controls.Add(this.cb_serveroffline);
-            this.Controls.Add(this.lbl_color2);
-            this.Controls.Add(this.lbl_color1);
-            this.Controls.Add(this.cb_serveronline);
-            this.Controls.Add(this.cb_allwindows);
-            this.Controls.Add(this.cb_background);
-            this.Controls.Add(this.btn_save);
+            this.ClientSize = new System.Drawing.Size(224, 431);
+            this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SettingsForm";
             this.Text = "Overlay Settings";
+            this.settingsBox.ResumeLayout(false);
+            this.settingsBox.PerformLayout();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -335,5 +361,7 @@
         private System.Windows.Forms.CheckBox cb_time;
         private System.Windows.Forms.CheckBox cb_ping;
         private System.Windows.Forms.Label lbl_displayopt;
+        private System.Windows.Forms.GroupBox settingsBox;
+        private System.Windows.Forms.Panel panel1;
     }
 }
