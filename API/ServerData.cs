@@ -19,21 +19,6 @@ namespace SCUMServerListener
         Time
     };
 
-    public class Server
-    {
-        private string _name;
-        private string _id;
-
-        public string Name => this._name;
-        public string ID => this._id;
-
-        public Server(string id, string name)
-        {
-            this._id = id;
-            this._name = name;
-        }
-    }
-
     public static class ServerData
     {
         private const string apiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
@@ -54,8 +39,7 @@ namespace SCUMServerListener
 
                 dynamic resultObj = JObject.Parse(json);
                 IEnumerable<dynamic> servers = resultObj["data"];
-
-                results = servers.Select(server => new Server(server["id"].ToString(), server["attributes"]["name"].ToString()));
+                results = servers.Select(server => new Server { ID = server["attributes"]["name"], Name = server["attributes"]["name"] });
             }
             catch (WebException)
             {
