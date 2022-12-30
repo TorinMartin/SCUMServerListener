@@ -47,7 +47,7 @@ namespace SCUMServerListener
 		private static extern bool GetCursorPos(out MOUSE mouse);
 
 		[DllImport("user32.dll")]
-		private static extern int GetAsyncKeyState(System.Windows.Forms.Keys vKey);
+		private static extern int GetAsyncKeyState(Keys vKey);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		private static extern bool CloseHandle(IntPtr hHandle);
