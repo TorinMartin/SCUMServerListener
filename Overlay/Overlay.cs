@@ -167,20 +167,16 @@ namespace SCUMServerListener
 
 			gfx.ClearScene();
 
-			if (!AppSettings.Instance.DisableBackground)
+            var drawColor = Status == "online" ? _brushes[AppSettings.Instance.OnlineColor] : _brushes[AppSettings.Instance.OfflineColor];
+
+            if (!AppSettings.Instance.DisableBackground)
 			{
-				if (Status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
-				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
-			}
+                gfx.DrawTextWithBackground(_fonts["consolas"], drawColor, _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
+            }
 			else
 			{
-				if (Status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], X, Y, infoText);
-				else
-					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OfflineColor], X, Y, infoText);
-			}
+                gfx.DrawText(_fonts["consolas"], drawColor, X, Y, infoText);
+            }
 		}
 
 		public void Run()
@@ -198,11 +194,9 @@ namespace SCUMServerListener
 		private bool ApplicationIsActivated()
 		{
 			var activehWnd = GetForegroundWindow();
-			if (activehWnd == IntPtr.Zero)
-				return false;
+			if (activehWnd == IntPtr.Zero) return false;
 
-			int activeProcId;
-			GetWindowThreadProcessId(activehWnd, out activeProcId);
+			GetWindowThreadProcessId(activehWnd, out var activeProcId);
 
 			return activeProcId == gameProcess.Id;
 		}
@@ -237,6 +231,8 @@ namespace SCUMServerListener
 					GetCursorPos(out mouse);
 					this.X = mouse.X;
 					this.Y = mouse.Y;
+					// Why does this not work without WriteLine prior to conditional statement????
+					Console.WriteLine(GetAsyncKeyState(Keys.LButton));
 					if (GetAsyncKeyState(Keys.LButton) > 0) {
 						break;
 					}
