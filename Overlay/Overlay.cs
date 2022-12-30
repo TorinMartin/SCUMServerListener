@@ -231,9 +231,7 @@ namespace SCUMServerListener
 					GetCursorPos(out mouse);
 					this.X = mouse.X;
 					this.Y = mouse.Y;
-					// Why does this not work without WriteLine prior to conditional statement????
-					Console.WriteLine(GetAsyncKeyState(Keys.LButton));
-					if (GetAsyncKeyState(Keys.LButton) > 0) {
+					if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000) {
 						break;
 					}
 				}
