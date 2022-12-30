@@ -14,28 +14,18 @@ namespace SCUMServerListener
 		private readonly GraphicsWindow _window;
 		private readonly Dictionary<string, SolidBrush> _brushes;
 		private readonly Dictionary<string, Font> _fonts;
-		private bool disposedValue;
-		private IntPtr hWnd = IntPtr.Zero;
-		private string windowName = "SCUM  ";
-		private string className = "UnrealWindow";
-		private Process gameProcess;
-		private GUI gui;
+		private bool _disposedValue;
+		private IntPtr _hWnd = IntPtr.Zero;
+		private string _windowName = "SCUM  ";
+		private string _className = "UnrealWindow";
+		private Process _gameProcess;
+		private GUI _gui;
 
-		public bool isCreated = false;
+		public bool IsCreated = false;
 		public string Name, Players, Status, Time, Ping;
 		public int X = AppSettings.Instance.PositionX, Y = AppSettings.Instance.PositionY;
 
-		RECT rect;
-
-		private struct RECT
-		{
-			public int left, top, right, bottom;
-		}
-		private struct MOUSE
-		{
-			public int X;
-			public int Y;
-		}
+		private RECT rect;
 
 		[DllImport("user32.dll", SetLastError = true)]
 		private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -64,7 +54,7 @@ namespace SCUMServerListener
 
 		public Overlay(GUI gui)
 		{
-			this.gui = gui;
+			_gui = gui;
 			_brushes = new Dictionary<string, SolidBrush>();
 			_fonts = new Dictionary<string, Font>();
 
@@ -79,11 +69,11 @@ namespace SCUMServerListener
 			{
 				if (!AppSettings.Instance.OverlayAllWindows)
 				{
-					hWnd = FindWindow(className, windowName);
-					GetWindowRect(hWnd, out rect);
-					this.gameProcess = GetGameProcess();
+					_hWnd = FindWindow(_className, _windowName);
+					GetWindowRect(_hWnd, out rect);
+					_gameProcess = GetGameProcess();
 
-					_window = new StickyWindow(hWnd, gfx)
+					_window = new StickyWindow(_hWnd, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
@@ -110,7 +100,7 @@ namespace SCUMServerListener
 				_window.DrawGraphics += _window_DrawGraphics;
 				_window.SetupGraphics += _window_SetupGraphics;
 
-				isCreated = true;
+				IsCreated = true;
 			}
 			catch (System.ArgumentOutOfRangeException) { MessageBox.Show("SCUM is not running!", "SCUM.exe not found", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 		}
@@ -180,14 +170,14 @@ namespace SCUMServerListener
 
 		public void Run()
 		{
-			if (isCreated)
+			if (IsCreated)
 			{
 				_window.Create();
 				_window.Join();
 			}
 		}
 
-		public bool HasProcessExited() => this.gameProcess.HasExited;
+		public bool HasProcessExited() => _gameProcess.HasExited;
 
 		// Credit https://stackoverflow.com/questions/7162834/determine-if-current-application-is-activated-has-focus
 		private bool ApplicationIsActivated()
@@ -197,7 +187,7 @@ namespace SCUMServerListener
 
 			GetWindowThreadProcessId(activehWnd, out var activeProcId);
 
-			return activeProcId == gameProcess.Id;
+			return activeProcId == _gameProcess.Id;
 		}
 
 		public void SetWindowVisibility()
@@ -219,9 +209,9 @@ namespace SCUMServerListener
         {
 			var isDragging = true;
 
-			if (!AppSettings.Instance.OverlayAllWindows && hWnd != IntPtr.Zero)
+			if (!AppSettings.Instance.OverlayAllWindows && _hWnd != IntPtr.Zero)
 			{
-                SetForegroundWindow(hWnd);
+                SetForegroundWindow(_hWnd);
             }
 
 			var dragThread = new Thread(() =>
@@ -240,8 +230,8 @@ namespace SCUMServerListener
 				AppSettings.Instance.PositionX = X;
 				AppSettings.Instance.PositionY = Y;
 				Configuration.Save(AppSettings.Instance);
-				Action del = delegate() { gui.toggle_overlay_btn(true); };
-				gui.InvokeOnUIThread(del);
+				Action del = delegate() { _gui.toggle_overlay_btn(true); };
+				_gui.InvokeOnUIThread(del);
 			});
 
 			dragThread.Start();
@@ -256,26 +246,26 @@ namespace SCUMServerListener
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (isCreated)
+			if (IsCreated)
 			{
-				if (hWnd != IntPtr.Zero)
+				if (_hWnd != IntPtr.Zero)
                 {
 					try
                     {
-						CloseHandle(hWnd);
+						CloseHandle(_hWnd);
 					} 
 					catch (SEHException)
                     {
 						// TODO: log error
-						hWnd = IntPtr.Zero;
+						_hWnd = IntPtr.Zero;
                     } 
                 }
 
-				if (!disposedValue)
+				if (!_disposedValue)
 				{
 					_window.Dispose();
 
-					disposedValue = true;
+					_disposedValue = true;
 				}
 			}
 		}

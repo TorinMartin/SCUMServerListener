@@ -44,7 +44,7 @@ namespace SCUMServerListener
             overlayThread = new Thread(overlay.Run) { IsBackground = true };
             overlayThread.Start();
 
-            if (!overlay.isCreated)
+            if (!overlay.IsCreated)
             {
                 StopOverlay();
                 return;
