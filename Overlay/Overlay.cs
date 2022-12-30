@@ -15,7 +15,6 @@ namespace SCUMServerListener
 		private readonly Dictionary<string, SolidBrush> _brushes;
 		private readonly Dictionary<string, Font> _fonts;
 		private bool disposedValue;
-		private bool isDragging = false;
 		private IntPtr hWnd = IntPtr.Zero;
 		private string windowName = "SCUM  ";
 		private string className = "UnrealWindow";
@@ -218,20 +217,22 @@ namespace SCUMServerListener
 
 		public void DragOverlay()
         {
-			MOUSE mouse;
-			isDragging = true;
+			var isDragging = true;
 
 			if (!AppSettings.Instance.OverlayAllWindows && hWnd != IntPtr.Zero)
-				SetForegroundWindow(hWnd);
+			{
+                SetForegroundWindow(hWnd);
+            }
 
 			var dragThread = new Thread(() =>
 			{
-				while (this.isDragging)
+				while (isDragging)
 				{
-					GetCursorPos(out mouse);
+					GetCursorPos(out var mouse);
 					this.X = mouse.X;
 					this.Y = mouse.Y;
-					if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000) {
+					if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000)
+					{
 						break;
 					}
 				}
