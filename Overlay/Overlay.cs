@@ -237,7 +237,6 @@ namespace SCUMServerListener
 					GetCursorPos(out mouse);
 					this.X = mouse.X;
 					this.Y = mouse.Y;
-					Console.WriteLine(GetAsyncKeyState(Keys.LButton).ToString());
 					if (GetAsyncKeyState(Keys.LButton) > 0) {
 						break;
 					}
