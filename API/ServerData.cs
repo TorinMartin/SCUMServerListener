@@ -1,28 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Http;
 
 namespace SCUMServerListener
 {
-    public enum Data
-    {
-        Name,
-        Players,
-        Status,
-        MaxPlayers,
-        Ip,
-        Port,
-        Time
-    };
-
     public static class ServerData
     {
         private const string apiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
         private const string genApiUrl = "https://api.battlemetrics.com/servers/";
+
+        private static HttpClient _client = new();
+
+        private static HttpResponseMessage SendRequest(string url)
+        {
+            var response = _client.GetAsync(url).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
 
         public static string GetLookupString(string serverString) => $"{apiUrl}{serverString.Replace(" ", "%20")}";
 
@@ -30,18 +28,15 @@ namespace SCUMServerListener
         {
             results = new List<dynamic>();
 
-            using WebClient client = new WebClient();
             try
             {
-                var json = client.DownloadString(lookUpString);
-
+                var json = SendRequest(lookUpString).Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
-
                 dynamic resultObj = JObject.Parse(json);
                 IEnumerable<dynamic> servers = resultObj["data"];
-                results = servers.Select(server => new Server { ID = server["attributes"]["name"], Name = server["attributes"]["name"] });
+                results = servers.Select(server => new Server { ID = server["attributes"]["id"], Name = server["attributes"]["name"] });
             }
-            catch (WebException)
+            catch (HttpRequestException)
             {
                 return false;
             }
@@ -52,14 +47,11 @@ namespace SCUMServerListener
         {
             results = new();
 
-            using WebClient client = new WebClient();
             try
             {
-                var data = client.DownloadString($"{genApiUrl}{serverId}");
-
-                if (data is null) return false;
-
-                dynamic result = JsonConvert.DeserializeObject(data);
+                var json = SendRequest($"{genApiUrl}{serverId}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                if (string.IsNullOrEmpty(json)) return false;
+                dynamic result = JsonConvert.DeserializeObject(json);
 
                 results.Add(Data.Name, result["data"]["attributes"]["name"].ToString());
                 results.Add(Data.Players, result["data"]["attributes"]["players"].ToString());
@@ -73,8 +65,10 @@ namespace SCUMServerListener
             }
             catch (Exception ex)
             {
-                if (ex is WebException or System.Net.Sockets.SocketException)
+                if (ex is HttpRequestException or System.Net.Sockets.SocketException)
+                {
                     return false;
+                }
                 throw;
             }
         }
