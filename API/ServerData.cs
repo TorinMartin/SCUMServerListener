@@ -22,7 +22,8 @@ namespace SCUMServerListener
             return response;
         }
 
-        public static string GetLookupString(string serverString) => $"{apiUrl}{serverString.Replace(" ", "%20")}";
+        //public static string GetLookupString(string serverString) => $"{apiUrl}{serverString.Replace(" ", "%20")}";
+        public static string GetLookupString(string serverString) => $"{apiUrl}{Uri.EscapeDataString(serverString)}";
 
         public static bool GetServers(string lookUpString, out IEnumerable<dynamic> results)
         {
