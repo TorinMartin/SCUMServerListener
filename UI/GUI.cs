@@ -100,14 +100,14 @@ namespace SCUMServerListener
 
                 UpdateUIElements = new Action(() => {
                     name.Text = title;
+                    status.Text = serverStatus == "online" ? "Online" : "Offline";
+                    players.Text = serverStatus == "online" ? $"{serverPlayers} / {serverMaxPlayers}" : "0";
+                    time.Text = serverStatus == "online" ? serverTime : "00:00";
+                    Ping.Text = serverPing;
                     name.ForeColor = color;
                     status.ForeColor = color;
                     players.ForeColor = color;
                     time.ForeColor = color;
-                    _ = serverStatus == "online" ? status.Text = "Online" : status.Text = "Offline";
-                    _ = serverStatus == "online" ? players.Text = $"{serverPlayers} / {serverMaxPlayers}" : players.Text = "0";
-                    _ = serverStatus == "online" ? time.Text = serverTime : time.Text = "00:00";
-                    Ping.Text = serverPing;
                 });
 
                 if (!searchbutton.Enabled) searchbutton.Enabled = true;
