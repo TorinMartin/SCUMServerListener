@@ -75,9 +75,7 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            Dictionary<Data, string> Results;
-
-            if(!ServerData.RetrieveData(this.ServerID, out Results) || Results is null || Results.Count == 0)
+            if(!ServerData.RetrieveData(this.ServerID, out var Results) || Results is null || Results.Count == 0)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
