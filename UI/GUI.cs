@@ -10,6 +10,7 @@ namespace SCUMServerListener
     {
         private const int UpdateAtSeconds = 30;
 
+        private Data _server = null;
         private string ServerID;
         private int counter;
         private bool overlayEnabled;
@@ -75,7 +76,7 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            if(!ServerData.RetrieveData(this.ServerID, out var server) || server is null)
+            if(!ServerData.RetrieveData(this.ServerID, ref _server) || _server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -85,15 +86,15 @@ namespace SCUMServerListener
 
             try
             {
-                var isOnline = server.Status == "online";
+                var isOnline = _server.Status == "online";
                 var color = isOnline ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = isOnline ? ServerData.Ping(server.Ip, 4).ToString() : string.Empty;
+                var serverPing = isOnline ? ServerData.Ping(_server.Ip, 4).ToString() : string.Empty;
 
                 UpdateUIElements = new Action(() => {
-                    name.Text = server.Name;
+                    name.Text = _server.Name;
                     status.Text = isOnline ? "Online" : "Offline";
-                    players.Text = isOnline ? $"{server.Players} / {server.MaxPlayers}" : "0";
-                    time.Text = isOnline ? server.Time : "00:00";
+                    players.Text = isOnline ? $"{_server.Players} / {_server.MaxPlayers}" : "0";
+                    time.Text = isOnline ? _server.Time : "00:00";
                     Ping.Text = serverPing;
                     name.ForeColor = color;
                     status.ForeColor = color;
@@ -105,10 +106,10 @@ namespace SCUMServerListener
 
                 if (overlayEnabled)
                 {
-                    overlay.Name = server.Name;
-                    overlay.Status = server.Status;
-                    overlay.Players = $"{server.Players} / {server.MaxPlayers}";
-                    overlay.Time = server.Time;
+                    overlay.Name = _server.Name;
+                    overlay.Status = _server.Status;
+                    overlay.Players = $"{_server.Players} / {_server.MaxPlayers}";
+                    overlay.Time = _server.Time;
                     overlay.Ping = serverPing;
                 }
             } catch (NullReferenceException)

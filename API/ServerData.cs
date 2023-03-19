@@ -42,16 +42,16 @@ namespace SCUMServerListener
             return true;
         }
 
-        public static bool RetrieveData(string serverId, out Data result)
+        public static bool RetrieveData(string serverId, ref Data server)
         {
-            result = null;
+            server ??= new();
             try
             {
                 var json = SendRequest($"{GEN_API_URL}{serverId}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
-                result = new()
+                server = new()
                 {
                     Name = obj["data"]["attributes"]["name"].ToString(),
                     Players = obj["data"]["attributes"]["players"].ToString(),
