@@ -12,7 +12,6 @@ namespace SCUMServerListener
         private const int UpdateAtSeconds = 30;
 
         private Server _server = null;
-        private string _serverID;
         private int _counter;
         private bool _overlayEnabled;
         private Timer _updateTimer;
@@ -23,7 +22,6 @@ namespace SCUMServerListener
         public GUI()
         { 
             InitializeComponent();
-            _serverID = AppSettings.Instance.DefaultServerId;
             update_progbar.Maximum = UpdateAtSeconds;
             update_progbar.Value = 0;
             CreateTimer();
@@ -77,7 +75,7 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            if(!ServerData.RetrieveData(_serverID, ref _server) || _server is null)
+            if(!ServerData.RetrieveData(ref _server) || _server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -123,16 +121,16 @@ namespace SCUMServerListener
             this.BeginInvoke(UpdateUIElements);
         }
 
-        private string IterateResults(IEnumerable<dynamic> servers)
+        private Server IterateResults(IEnumerable<dynamic> servers)
         {
-            if (servers is null) return _serverID;
+            if (servers is null) return _server;
 
             foreach (var server in servers)
             {
                 DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    return server.ID;
+                    return server;
                 }
                 else if (dialogResult == DialogResult.Cancel)
                 {
@@ -140,7 +138,7 @@ namespace SCUMServerListener
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return _serverID;
+            return _server;
         }
 
         private async void searchbutton_Click(object sender, EventArgs e)
@@ -154,7 +152,7 @@ namespace SCUMServerListener
                 return;
             }
             
-            _serverID = IterateResults(servers);
+            _server = IterateResults(servers);
 
             updateTimer_Reset();
 
@@ -198,7 +196,7 @@ namespace SCUMServerListener
 
         private void setdft_btn_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.DefaultServerId = _serverID;
+            AppSettings.Instance.DefaultServerId = _server.ID;
             if (!Configuration.Save(AppSettings.Instance))
             {
                 MessageBox.Show("Unable to save default server!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);

@@ -42,25 +42,26 @@ namespace SCUMServerListener
             return true;
         }
 
-        public static bool RetrieveData(string serverId, ref Server server)
+        public static bool RetrieveData(ref Server server)
         {
-            server ??= new();
+            server ??= new()
+            {
+                ID = AppSettings.Instance.DefaultServerId
+            };
+
             try
             {
-                var json = SendRequest($"{GEN_API_URL}{serverId}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var json = SendRequest($"{GEN_API_URL}{server.ID}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
-                server = new()
-                {
-                    Name = obj["data"]["attributes"]["name"].ToString(),
-                    Players = obj["data"]["attributes"]["players"].ToString(),
-                    Status = obj["data"]["attributes"]["status"].ToString(),
-                    MaxPlayers = obj["data"]["attributes"]["maxPlayers"].ToString(),
-                    Ip = obj["data"]["attributes"]["ip"].ToString(),
-                    Port = obj["data"]["attributes"]["port"].ToString(),
-                    Time = obj["data"]["attributes"]["details"]["time"].ToString()
-                };
+                server.Name = obj["data"]["attributes"]["name"].ToString();
+                server.Players = obj["data"]["attributes"]["players"].ToString();
+                server.Status = obj["data"]["attributes"]["status"].ToString();
+                server.MaxPlayers = obj["data"]["attributes"]["maxPlayers"].ToString();
+                server.Ip = obj["data"]["attributes"]["ip"].ToString();
+                server.Port = obj["data"]["attributes"]["port"].ToString();
+                server.Time = obj["data"]["attributes"]["details"]["time"].ToString();
 
                 return true;
             }

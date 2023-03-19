@@ -15,7 +15,5 @@
         public string OnlineColor { get; set; } = "Green";
         public string OfflineColor { get; set; } = "Red";
         public string BackgroundColor { get; set; } = "Dark";
-
-        static AppSettings() { }
     }
 }
