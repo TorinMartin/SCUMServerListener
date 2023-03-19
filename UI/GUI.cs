@@ -70,7 +70,7 @@ namespace SCUMServerListener
 
         private void CreateTimer()
         {
-            _updateTimer = new System.Windows.Forms.Timer() { Interval = 1000 };
+            _updateTimer = new Timer() { Interval = 1000 };
             _updateTimer.Tick += new EventHandler(updateTimer_Tick);
             _updateTimer.Start();
         }
