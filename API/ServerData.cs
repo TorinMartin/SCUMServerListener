@@ -42,7 +42,7 @@ namespace SCUMServerListener
             return true;
         }
 
-        public static bool RetrieveData(string serverId, ref Data server)
+        public static bool RetrieveData(string serverId, ref Server server)
         {
             server ??= new();
             try
