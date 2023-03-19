@@ -75,7 +75,7 @@ namespace SCUMServerListener
 
         private void Update()
         {
-            if(!ServerData.RetrieveData(this.ServerID, out var Results) || Results is null || Results.Count == 0)
+            if(!ServerData.RetrieveData(this.ServerID, out var server) || server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -85,22 +85,15 @@ namespace SCUMServerListener
 
             try
             {
-                Results.TryGetValue(Data.Ip, out var ip);
-                Results.TryGetValue(Data.Port, out var port);
-                Results.TryGetValue(Data.Name, out var title);
-                Results.TryGetValue(Data.Status, out var serverStatus);
-                Results.TryGetValue(Data.Players, out var serverPlayers);
-                Results.TryGetValue(Data.MaxPlayers, out var serverMaxPlayers);
-                Results.TryGetValue(Data.Time, out var serverTime);
-
-                var color = serverStatus == "online" ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = serverStatus == "online" ? ServerData.Ping(ip, 4).ToString() : string.Empty;
+                var isOnline = server.Status == "online";
+                var color = isOnline ? System.Drawing.Color.Green : System.Drawing.Color.Red;
+                var serverPing = isOnline ? ServerData.Ping(server.Ip, 4).ToString() : string.Empty;
 
                 UpdateUIElements = new Action(() => {
-                    name.Text = title;
-                    status.Text = serverStatus == "online" ? "Online" : "Offline";
-                    players.Text = serverStatus == "online" ? $"{serverPlayers} / {serverMaxPlayers}" : "0";
-                    time.Text = serverStatus == "online" ? serverTime : "00:00";
+                    name.Text = server.Name;
+                    status.Text = isOnline ? "Online" : "Offline";
+                    players.Text = isOnline ? $"{server.Players} / {server.MaxPlayers}" : "0";
+                    time.Text = isOnline ? server.Time : "00:00";
                     Ping.Text = serverPing;
                     name.ForeColor = color;
                     status.ForeColor = color;
@@ -112,13 +105,13 @@ namespace SCUMServerListener
 
                 if (overlayEnabled)
                 {
-                    overlay.Name = title;
-                    overlay.Status = serverStatus;
-                    overlay.Players = $"{serverPlayers} / {serverMaxPlayers}";
-                    overlay.Time = serverTime;
+                    overlay.Name = server.Name;
+                    overlay.Status = server.Status;
+                    overlay.Players = $"{server.Players} / {server.MaxPlayers}";
+                    overlay.Time = server.Time;
                     overlay.Ping = serverPing;
                 }
-            } catch (System.NullReferenceException)
+            } catch (NullReferenceException)
             {
                 MessageBox.Show("There was a problem while retrieving server data!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
