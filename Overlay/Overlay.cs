@@ -14,29 +14,18 @@ namespace SCUMServerListener
 		private readonly GraphicsWindow _window;
 		private readonly Dictionary<string, SolidBrush> _brushes;
 		private readonly Dictionary<string, Font> _fonts;
-		private bool disposedValue;
-		private bool isDragging = false;
-		private IntPtr hWnd = IntPtr.Zero;
-		private string windowName = "SCUM  ";
-		private string className = "UnrealWindow";
-		private Process gameProcess;
-		private GUI gui;
+		private bool _disposedValue;
+		private IntPtr _hWnd = IntPtr.Zero;
+		private string _windowName = "SCUM  ";
+		private string _className = "UnrealWindow";
+		private Process _gameProcess;
+		private GUI _gui;
 
-		public bool isCreated = false;
+		public bool IsCreated = false;
 		public string Name, Players, Status, Time, Ping;
 		public int X = AppSettings.Instance.PositionX, Y = AppSettings.Instance.PositionY;
 
-		RECT rect;
-
-		private struct RECT
-		{
-			public int left, top, right, bottom;
-		}
-		private struct MOUSE
-		{
-			public int X;
-			public int Y;
-		}
+		private RECT rect;
 
 		[DllImport("user32.dll", SetLastError = true)]
 		private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -58,14 +47,14 @@ namespace SCUMServerListener
 		private static extern bool GetCursorPos(out MOUSE mouse);
 
 		[DllImport("user32.dll")]
-		private static extern int GetAsyncKeyState(System.Windows.Forms.Keys vKey);
+		private static extern int GetAsyncKeyState(Keys vKey);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		private static extern bool CloseHandle(IntPtr hHandle);
 
 		public Overlay(GUI gui)
 		{
-			this.gui = gui;
+			_gui = gui;
 			_brushes = new Dictionary<string, SolidBrush>();
 			_fonts = new Dictionary<string, Font>();
 
@@ -80,11 +69,11 @@ namespace SCUMServerListener
 			{
 				if (!AppSettings.Instance.OverlayAllWindows)
 				{
-					hWnd = FindWindow(className, windowName);
-					GetWindowRect(hWnd, out rect);
-					this.gameProcess = GetGameProcess();
+					_hWnd = FindWindow(_className, _windowName);
+					GetWindowRect(_hWnd, out rect);
+					_gameProcess = GetGameProcess();
 
-					_window = new StickyWindow(hWnd, gfx)
+					_window = new StickyWindow(_hWnd, gfx)
 					{
 						FPS = 60,
 						IsTopmost = true,
@@ -111,7 +100,7 @@ namespace SCUMServerListener
 				_window.DrawGraphics += _window_DrawGraphics;
 				_window.SetupGraphics += _window_SetupGraphics;
 
-				isCreated = true;
+				IsCreated = true;
 			}
 			catch (System.ArgumentOutOfRangeException) { MessageBox.Show("SCUM is not running!", "SCUM.exe not found", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 		}
@@ -167,44 +156,38 @@ namespace SCUMServerListener
 
 			gfx.ClearScene();
 
-			if (!AppSettings.Instance.DisableBackground)
+            var drawColor = Status == "online" ? _brushes[AppSettings.Instance.OnlineColor] : _brushes[AppSettings.Instance.OfflineColor];
+
+            if (!AppSettings.Instance.DisableBackground)
 			{
-				if (Status == "online")
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
-				else
-					gfx.DrawTextWithBackground(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
-			}
+                gfx.DrawTextWithBackground(_fonts["consolas"], drawColor, _brushes[AppSettings.Instance.BackgroundColor], X, Y, infoText);
+            }
 			else
 			{
-				if (Status == "online")
-					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OnlineColor], X, Y, infoText);
-				else
-					gfx.DrawText(_fonts["consolas"], _brushes[AppSettings.Instance.OfflineColor], X, Y, infoText);
-			}
+                gfx.DrawText(_fonts["consolas"], drawColor, X, Y, infoText);
+            }
 		}
 
 		public void Run()
 		{
-			if (isCreated)
+			if (IsCreated)
 			{
 				_window.Create();
 				_window.Join();
 			}
 		}
 
-		public bool HasProcessExited() => this.gameProcess.HasExited;
+		public bool HasProcessExited() => _gameProcess.HasExited;
 
 		// Credit https://stackoverflow.com/questions/7162834/determine-if-current-application-is-activated-has-focus
 		private bool ApplicationIsActivated()
 		{
 			var activehWnd = GetForegroundWindow();
-			if (activehWnd == IntPtr.Zero)
-				return false;
+			if (activehWnd == IntPtr.Zero) return false;
 
-			int activeProcId;
-			GetWindowThreadProcessId(activehWnd, out activeProcId);
+			GetWindowThreadProcessId(activehWnd, out var activeProcId);
 
-			return activeProcId == gameProcess.Id;
+			return activeProcId == _gameProcess.Id;
 		}
 
 		public void SetWindowVisibility()
@@ -224,20 +207,22 @@ namespace SCUMServerListener
 
 		public void DragOverlay()
         {
-			MOUSE mouse;
-			isDragging = true;
+			var isDragging = true;
 
-			if (!AppSettings.Instance.OverlayAllWindows && hWnd != IntPtr.Zero)
-				SetForegroundWindow(hWnd);
+			if (!AppSettings.Instance.OverlayAllWindows && _hWnd != IntPtr.Zero)
+			{
+                SetForegroundWindow(_hWnd);
+            }
 
 			var dragThread = new Thread(() =>
 			{
-				while (this.isDragging)
+				while (isDragging)
 				{
-					GetCursorPos(out mouse);
+					GetCursorPos(out var mouse);
 					this.X = mouse.X;
 					this.Y = mouse.Y;
-					if (GetAsyncKeyState(Keys.LButton) < 0) {
+					if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000)
+					{
 						break;
 					}
 				}
@@ -245,8 +230,8 @@ namespace SCUMServerListener
 				AppSettings.Instance.PositionX = X;
 				AppSettings.Instance.PositionY = Y;
 				Configuration.Save(AppSettings.Instance);
-				Action del = delegate() { gui.toggle_overlay_btn(true); };
-				gui.InvokeOnUIThread(del);
+				Action del = delegate() { _gui.toggle_overlay_btn(true); };
+				_gui.InvokeOnUIThread(del);
 			});
 
 			dragThread.Start();
@@ -261,26 +246,26 @@ namespace SCUMServerListener
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (isCreated)
+			if (IsCreated)
 			{
-				if (hWnd != IntPtr.Zero)
+				if (_hWnd != IntPtr.Zero)
                 {
 					try
                     {
-						CloseHandle(hWnd);
+						CloseHandle(_hWnd);
 					} 
 					catch (SEHException)
                     {
 						// TODO: log error
-						hWnd = IntPtr.Zero;
+						_hWnd = IntPtr.Zero;
                     } 
                 }
 
-				if (!disposedValue)
+				if (!_disposedValue)
 				{
 					_window.Dispose();
 
-					disposedValue = true;
+					_disposedValue = true;
 				}
 			}
 		}
