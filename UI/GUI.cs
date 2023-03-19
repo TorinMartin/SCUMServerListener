@@ -9,7 +9,7 @@ namespace SCUMServerListener
 {
     public partial class GUI : Form
     {
-        private const int UpdateAtSeconds = 30;
+        private const int UPDATE_EVERY_SECONDS = 30;
 
         private Server _server = null;
         private int _counter;
@@ -22,7 +22,7 @@ namespace SCUMServerListener
         public GUI()
         { 
             InitializeComponent();
-            update_progbar.Maximum = UpdateAtSeconds;
+            update_progbar.Maximum = UPDATE_EVERY_SECONDS;
             update_progbar.Value = 0;
             CreateTimer();
             _counter = 30;
