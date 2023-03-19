@@ -10,9 +10,8 @@ namespace SCUMServerListener
 {
     public static class ServerData
     {
-        private const string apiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
-        private const string genApiUrl = "https://api.battlemetrics.com/servers/";
-
+        private const string API_URL = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
+        private const string GEN_API_URL = "https://api.battlemetrics.com/servers/";
         private static HttpClient _client = new();
 
         private static HttpResponseMessage SendRequest(string url)
@@ -22,7 +21,7 @@ namespace SCUMServerListener
             return response;
         }
 
-        public static string GetLookupString(string serverString) => $"{apiUrl}{Uri.EscapeDataString(serverString)}";
+        public static string GetLookupString(string serverString) => $"{API_URL}{Uri.EscapeDataString(serverString)}";
 
         public static bool GetServers(string lookUpString, out IEnumerable<dynamic> results)
         {
@@ -48,7 +47,7 @@ namespace SCUMServerListener
             result = null;
             try
             {
-                var json = SendRequest($"{genApiUrl}{serverId}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var json = SendRequest($"{GEN_API_URL}{serverId}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
