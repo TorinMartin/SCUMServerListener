@@ -55,13 +55,13 @@ namespace SCUMServerListener
                 if (string.IsNullOrEmpty(json)) return false;
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
-                server.Name = obj["data"]["attributes"]["name"].ToString();
-                server.Players = obj["data"]["attributes"]["players"].ToString();
-                server.Status = obj["data"]["attributes"]["status"].ToString();
-                server.MaxPlayers = obj["data"]["attributes"]["maxPlayers"].ToString();
-                server.Ip = obj["data"]["attributes"]["ip"].ToString();
-                server.Port = obj["data"]["attributes"]["port"].ToString();
-                server.Time = obj["data"]["attributes"]["details"]["time"].ToString();
+                server.Name = obj.data?.attributes?.name ?? string.Empty;
+                server.Players = obj.data?.attributes?.players ?? string.Empty;
+                server.Status = obj.data?.attributes?.status ?? string.Empty;
+                server.MaxPlayers = obj.data?.attributes?.maxPlayers ?? string.Empty;
+                server.Ip = obj.data?.attributes?.ip ?? string.Empty;
+                server.Port = obj.data?.attributes?.port ?? string.Empty;
+                server.Time = obj.data?.attributes?.details?.time ?? string.Empty;
 
                 return true;
             }
