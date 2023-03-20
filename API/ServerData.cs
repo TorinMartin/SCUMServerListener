@@ -31,9 +31,9 @@ namespace SCUMServerListener
             {
                 var json = SendRequest(lookUpString).Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
-                dynamic resultObj = JObject.Parse(json);
-                IEnumerable<dynamic> servers = resultObj["data"];
-                results = servers.Select(server => new Server { ID = server["attributes"]["id"], Name = server["attributes"]["name"] });
+                dynamic obj = JsonConvert.DeserializeObject(json);
+                IEnumerable<dynamic> servers = obj?.data;
+                results = servers.Select(server => new Server { ID = server.attributes?.id, Name = server.attributes?.name });
             }
             catch (HttpRequestException)
             {
