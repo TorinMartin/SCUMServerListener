@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Http;
 
@@ -31,9 +30,9 @@ namespace SCUMServerListener
             {
                 var json = SendRequest(lookUpString).Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 if (string.IsNullOrEmpty(json)) return false;
-                dynamic resultObj = JObject.Parse(json);
-                IEnumerable<dynamic> servers = resultObj["data"];
-                results = servers.Select(server => new Server { ID = server["attributes"]["id"], Name = server["attributes"]["name"] });
+                dynamic obj = JsonConvert.DeserializeObject(json);
+                IEnumerable<dynamic> servers = obj?.data;
+                results = servers.Select(server => new Server { ID = server.attributes?.id, Name = server.attributes?.name });
             }
             catch (HttpRequestException)
             {
@@ -55,13 +54,13 @@ namespace SCUMServerListener
                 if (string.IsNullOrEmpty(json)) return false;
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
-                server.Name = obj["data"]["attributes"]["name"].ToString();
-                server.Players = obj["data"]["attributes"]["players"].ToString();
-                server.Status = obj["data"]["attributes"]["status"].ToString();
-                server.MaxPlayers = obj["data"]["attributes"]["maxPlayers"].ToString();
-                server.Ip = obj["data"]["attributes"]["ip"].ToString();
-                server.Port = obj["data"]["attributes"]["port"].ToString();
-                server.Time = obj["data"]["attributes"]["details"]["time"].ToString();
+                server.Name = obj.data?.attributes?.name ?? string.Empty;
+                server.Players = obj.data?.attributes?.players ?? string.Empty;
+                server.Status = obj.data?.attributes?.status ?? string.Empty;
+                server.MaxPlayers = obj.data?.attributes?.maxPlayers ?? string.Empty;
+                server.Ip = obj.data?.attributes?.ip ?? string.Empty;
+                server.Port = obj.data?.attributes?.port ?? string.Empty;
+                server.Time = obj.data?.attributes?.details?.time ?? string.Empty;
 
                 return true;
             }
