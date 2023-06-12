@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SCUMServerListener
 {
@@ -14,35 +15,38 @@ namespace SCUMServerListener
         private const string GEN_API_URL = "https://api.battlemetrics.com/servers/";
         private static HttpClient _client = new();
 
-        private static HttpResponseMessage SendRequest(string url)
+        private static async Task<HttpResponseMessage> SendRequest(string url)
         {
-            var response = _client.GetAsync(url).GetAwaiter().GetResult();
+            var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             return response;
         }
 
         public static string GetLookupString(string serverString) => $"{API_URL}{Uri.EscapeDataString(serverString)}";
 
-        public static bool GetServers(string lookUpString, out IEnumerable<dynamic> results)
+        public static async Task<List<Server>> GetServers(string lookUpString)
         {
-            results = new List<dynamic>();
+            var result = new List<Server>();
 
             try
             {
-                var json = SendRequest(lookUpString).Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                if (string.IsNullOrEmpty(json)) return false;
+                var response = await SendRequest(lookUpString);
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrEmpty(json)) return result;
+
                 dynamic resultObj = JObject.Parse(json);
                 IEnumerable<dynamic> servers = resultObj["data"];
-                results = servers.Select(server => new Server { ID = server["attributes"]["id"], Name = server["attributes"]["name"] });
+                result = servers.Select(server => new Server { ID = server["attributes"]["id"], Name = server["attributes"]["name"] }).ToList();
             }
             catch (HttpRequestException)
             {
-                return false;
+                //TODO: Log
             }
-            return true;
+            return result;
         }
 
-        public static bool RetrieveData(ref Server server)
+        public static async Task<Server?> RetrieveData(Server server)
         {
             server ??= new()
             {
@@ -51,8 +55,11 @@ namespace SCUMServerListener
 
             try
             {
-                var json = SendRequest($"{GEN_API_URL}{server.ID}").Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                if (string.IsNullOrEmpty(json)) return false;
+                var response = await SendRequest($"{GEN_API_URL}{server.ID}"); 
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrEmpty(json)) return null;
+
                 dynamic obj = JsonConvert.DeserializeObject(json);
 
                 server.Name = obj["data"]["attributes"]["name"].ToString();
@@ -63,13 +70,13 @@ namespace SCUMServerListener
                 server.Port = obj["data"]["attributes"]["port"].ToString();
                 server.Time = obj["data"]["attributes"]["details"]["time"].ToString();
 
-                return true;
+                return server;
             }
             catch (Exception ex)
             {
                 if (ex is HttpRequestException or System.Net.Sockets.SocketException)
                 {
-                    return false;
+                    return null;
                 }
                 throw;
             }
@@ -79,7 +86,7 @@ namespace SCUMServerListener
         {
             long totalTime = 0;
             int timeout = 120;
-            Ping pingSender = new Ping();
+            var pingSender = new Ping();
 
             for (int i = 0; i < echoNum; i++)
             {

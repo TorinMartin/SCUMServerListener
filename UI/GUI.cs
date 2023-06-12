@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using Timer = System.Windows.Forms.Timer;
+using System.Linq;
 
 namespace SCUMServerListener
 {
@@ -25,11 +26,11 @@ namespace SCUMServerListener
             update_progbar.Maximum = UPDATE_EVERY_SECONDS;
             update_progbar.Value = 0;
             CreateTimer();
-            _counter = 30;
+            Task.Run(() => Update());
             _overlayEnabled = false;
         }
 
-        private void StartOverlay()
+        private async Task StartOverlay()
         {
             if (_overlay is not null)
             {
@@ -53,7 +54,7 @@ namespace SCUMServerListener
             _overlayEnabled = true;
             btn_overlay.Text = "Disable Overlay";
             btn_drag_overlay.Show();
-            Task.Run(() => Update());
+            await Update();
         }
 
         private void StopOverlay()
@@ -73,13 +74,15 @@ namespace SCUMServerListener
             _updateTimer.Start();
         }
 
-        private void Update()
+        private async Task Update()
         {
-            if(!ServerData.RetrieveData(ref _server) || _server is null)
+            var server = await ServerData.RetrieveData(_server);
+            if(server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            _server = server;
 
             Action UpdateUIElements;
 
@@ -146,7 +149,8 @@ namespace SCUMServerListener
             var searchInput = searchbox.Text;
             var lookUpString = ServerData.GetLookupString(searchInput);
 
-            if(!ServerData.GetServers(lookUpString, out var servers))
+            var servers = await ServerData.GetServers(lookUpString);
+            if(!servers.Any())
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -156,7 +160,7 @@ namespace SCUMServerListener
 
             updateTimer_Reset();
 
-            await Task.Run(() => Update());
+            await Update();
         }
 
         private void updateTimer_Reset()
@@ -165,13 +169,13 @@ namespace SCUMServerListener
             _counter = 0;
         }
 
-        private void updateTimer_Tick(object sender, EventArgs e)
+        private async void updateTimer_Tick(object sender, EventArgs e)
         {
             if (_counter >= 30)
             {
                 update_progbar.Value = 0;
                 _counter = 0;
-                Task.Run(() => Update());
+                await Update();
             }
             _counter++;
             update_progbar.Value = _counter;
@@ -205,11 +209,11 @@ namespace SCUMServerListener
             MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
-        private void btn_overlay_Click(object sender, EventArgs e)
+        private async void btn_overlay_Click(object sender, EventArgs e)
         {
             if (!_overlayEnabled)
             {
-                StartOverlay();
+                await StartOverlay();
             }
             else
             {
