@@ -144,23 +144,28 @@ namespace SCUMServerListener
             return _server;
         }
 
-        private async void searchbutton_Click(object sender, EventArgs e)
+        private async Task SearchAsync()
         {
             var searchInput = searchbox.Text;
             var lookUpString = ServerData.GetLookupString(searchInput);
 
             var servers = await ServerData.GetServers(lookUpString);
-            if(!servers.Any())
+            if (!servers.Any())
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            
+
             _server = IterateResults(servers);
 
             updateTimer_Reset();
 
             await Update();
+        }
+
+        private void searchbutton_Click(object sender, EventArgs e)
+        {
+            _ = SearchAsync();
         }
 
         private void updateTimer_Reset()
@@ -169,7 +174,7 @@ namespace SCUMServerListener
             _counter = 0;
         }
 
-        private async void updateTimer_Tick(object sender, EventArgs e)
+        private async Task updateTimerTickAsync()
         {
             if (_counter >= 30)
             {
@@ -198,6 +203,11 @@ namespace SCUMServerListener
             }
         }
 
+        private void updateTimer_Tick(object sender, EventArgs e)
+        {
+            _ = updateTimerTickAsync();
+        }
+
         private void setdft_btn_Click(object sender, EventArgs e)
         {
             AppSettings.Instance.DefaultServerId = _server.ID;
@@ -209,7 +219,7 @@ namespace SCUMServerListener
             MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
-        private async void btn_overlay_Click(object sender, EventArgs e)
+        private async Task toggleOverlayAsync()
         {
             if (!_overlayEnabled)
             {
@@ -219,6 +229,10 @@ namespace SCUMServerListener
             {
                 StopOverlay();
             }
+        }
+        private void btn_overlay_Click(object sender, EventArgs e)
+        {
+            _ = toggleOverlayAsync();
         }
 
         private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
