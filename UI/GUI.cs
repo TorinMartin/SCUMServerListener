@@ -18,7 +18,7 @@ namespace SCUMServerListener
         private Timer _updateTimer;
         private SettingsForm _settingsForm;
         private Thread _overlayThread;
-        private Overlay _overlay;
+        private Overlay.Overlay _overlay;
 
         public GUI()
         { 
@@ -40,7 +40,7 @@ namespace SCUMServerListener
                     _overlay.Dispose();
             }
 
-            _overlay = new Overlay(this);
+            _overlay = new Overlay.Overlay(this);
 
             _overlayThread = new Thread(_overlay.Run) { IsBackground = true };
             _overlayThread.Start();

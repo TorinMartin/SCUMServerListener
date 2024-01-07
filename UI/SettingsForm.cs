@@ -5,9 +5,9 @@ namespace SCUMServerListener
 {
     public partial class SettingsForm : Form
     {
-        private Overlay ol;
+        private Overlay.Overlay ol;
 
-        public SettingsForm(Overlay ol)
+        public SettingsForm(Overlay.Overlay ol)
         {
             InitializeComponent();
             this.MaximizeBox = false;

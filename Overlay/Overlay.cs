@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
 
-namespace SCUMServerListener
+namespace SCUMServerListener.Overlay
 {
     public class Overlay : IDisposable
     {
@@ -16,16 +16,14 @@ namespace SCUMServerListener
 		private readonly Dictionary<string, Font> _fonts;
 		private bool _disposedValue;
 		private IntPtr _hWnd = IntPtr.Zero;
-		private string _windowName = "SCUM  ";
-		private string _className = "UnrealWindow";
-		private Process _gameProcess;
-		private GUI _gui;
+		private readonly string _windowName = "SCUM  ";
+		private readonly string _className = "UnrealWindow";
+		private readonly Process _gameProcess;
+		private readonly GUI _gui;
 
-		public bool IsCreated = false;
+		public readonly bool IsCreated;
 		public string Name, Players, Status, Time, Ping;
 		public int X = AppSettings.Instance.PositionX, Y = AppSettings.Instance.PositionY;
-
-		private RECT rect;
 
 		[DllImport("user32.dll", SetLastError = true)]
 		private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -54,6 +52,7 @@ namespace SCUMServerListener
 
 		public Overlay(GUI gui)
 		{
+			RECT rect;
 			_gui = gui;
 			_brushes = new Dictionary<string, SolidBrush>();
 			_fonts = new Dictionary<string, Font>();
@@ -170,11 +169,9 @@ namespace SCUMServerListener
 
 		public void Run()
 		{
-			if (IsCreated)
-			{
-				_window.Create();
-				_window.Join();
-			}
+			if (!IsCreated) return;
+			_window.Create();
+			_window.Join();
 		}
 
 		public bool HasProcessExited() => _gameProcess.HasExited;
@@ -195,46 +192,38 @@ namespace SCUMServerListener
 			_window.IsVisible = ApplicationIsActivated();
 		}
 
-		private Process GetGameProcess()
+		private static Process GetGameProcess()
 		{
-			Process[] procList = Process.GetProcessesByName("SCUM");
-			if (procList.Length > 0)
-			{
-				return procList[0];
-			}
-			return null;
+			var procList = Process.GetProcessesByName("SCUM");
+			return procList.Length > 0 ? procList[0] : null;
 		}
 
 		public void DragOverlay()
         {
-			var isDragging = true;
-
 			if (!AppSettings.Instance.OverlayAllWindows && _hWnd != IntPtr.Zero)
 			{
                 SetForegroundWindow(_hWnd);
             }
 
-			var dragThread = new Thread(() =>
+			Task.Run(() =>
 			{
+				var isDragging = true;
 				while (isDragging)
 				{
 					GetCursorPos(out var mouse);
-					this.X = mouse.X;
-					this.Y = mouse.Y;
+					X = mouse.X;
+					Y = mouse.Y;
 					if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000)
 					{
-						break;
+						isDragging = false;
 					}
 				}
 
 				AppSettings.Instance.PositionX = X;
 				AppSettings.Instance.PositionY = Y;
 				Configuration.Save(AppSettings.Instance);
-				Action del = delegate() { _gui.toggle_overlay_btn(true); };
-				_gui.InvokeOnUIThread(del);
+				_gui.InvokeOnUIThread(() => _gui.toggle_overlay_btn(true));
 			});
-
-			dragThread.Start();
         }
 
 		~Overlay()
@@ -246,27 +235,25 @@ namespace SCUMServerListener
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (IsCreated)
+			if (!IsCreated) return;
+			if (_hWnd != IntPtr.Zero)
 			{
-				if (_hWnd != IntPtr.Zero)
-                {
-					try
-                    {
-						CloseHandle(_hWnd);
-					} 
-					catch (SEHException)
-                    {
-						// TODO: log error
-						_hWnd = IntPtr.Zero;
-                    } 
-                }
-
-				if (!_disposedValue)
+				try
 				{
-					_window.Dispose();
+					CloseHandle(_hWnd);
+				} 
+				catch (SEHException)
+				{
+					// TODO: log error
+					_hWnd = IntPtr.Zero;
+				} 
+			}
 
-					_disposedValue = true;
-				}
+			if (!_disposedValue)
+			{
+				_window.Dispose();
+
+				_disposedValue = true;
 			}
 		}
 
