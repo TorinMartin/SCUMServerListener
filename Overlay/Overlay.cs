@@ -221,13 +221,12 @@ namespace SCUMServerListener.Overlay
                         isDragging = false;
                     }
                 }
-
-                AppSettings.Instance.PositionX = X;
-                AppSettings.Instance.PositionY = Y;
-                Configuration.Save(AppSettings.Instance);
-                _gui.InvokeOnUIThread(() => _gui.toggle_overlay_btn(true));
             });
-
+            
+            AppSettings.Instance.PositionX = X;
+            AppSettings.Instance.PositionY = Y;
+            Configuration.Save(AppSettings.Instance);
+            _gui.InvokeOnUIThread(() => _gui.toggle_overlay_btn(true));
         }
 
         ~Overlay()
