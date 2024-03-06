@@ -40,7 +40,7 @@ namespace SCUMServerListener.API
                 
                 dynamic resultObj = JObject.Parse(json);
                 IEnumerable<dynamic> servers = resultObj["data"];
-                result = servers.Select(server => new ServerSearchResult(server["attributes"]["id"], server["attributes"]["name"])).ToList();
+                result = servers.Select(server => new ServerSearchResult(server["attributes"]["id"].ToString(), server["attributes"]["name"].ToString())).ToList();
             }
             catch (HttpRequestException)
             {

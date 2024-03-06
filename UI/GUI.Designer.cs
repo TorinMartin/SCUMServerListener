@@ -1,6 +1,6 @@
-﻿namespace SCUMServerListener
+﻿namespace SCUMServerListener.UI
 {
-    partial class GUI
+    partial class Gui
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GUI));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Gui));
             this.searchbox = new System.Windows.Forms.TextBox();
             this.searchbutton = new System.Windows.Forms.Button();
             this.title = new System.Windows.Forms.Label();
@@ -311,7 +311,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.MaximizeBox = false;
-            this.Name = "GUI";
+            this.Name = "Gui";
             this.Text = "SCUM Server Listener";
             ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).EndInit();
             this.menuStrip.ResumeLayout(false);

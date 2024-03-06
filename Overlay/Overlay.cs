@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
+using SCUMServerListener.UI;
 
 namespace SCUMServerListener.Overlay
 {
@@ -19,7 +20,7 @@ namespace SCUMServerListener.Overlay
         private readonly string _windowName = "SCUM  ";
         private readonly string _className = "UnrealWindow";
         private readonly Process _gameProcess;
-        private readonly GUI _gui;
+        private readonly Gui _gui;
 
         public readonly bool IsCreated;
         public string Name, Players, Status, Time, Ping;
@@ -50,7 +51,7 @@ namespace SCUMServerListener.Overlay
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hHandle);
 
-        public Overlay(GUI gui)
+        public Overlay(Gui gui)
         {
             RECT rect;
             _gui = gui;

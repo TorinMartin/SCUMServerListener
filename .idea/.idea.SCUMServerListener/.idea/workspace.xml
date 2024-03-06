@@ -8,9 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7a88525-7902-44b8-bace-27d257cfbc8a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/API/Server.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/Server.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/ServerData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/ApiUtil.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SCUMServerListener.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SCUMServerListener.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SCUMServerListener/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SCUMServerListener/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Overlay/Overlay.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Overlay/Overlay.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/GUI.Designer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UI/GUI.Designer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/GUI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UI/GUI.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,26 +31,26 @@
     <option name="showLibraryContents" value="true" />
     <option name="sortKey" value="BY_TIME_DESCENDING" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Project.SCUMServerListener.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Project.SCUMServerListener.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;C:\\Users\\alows\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache&quot;,
-      &quot;C:\\Users\\alows\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache&quot;,
-      &quot;C:\\Users\\alows\\AppData\\Local\\Symbols\\src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "C:\\Users\\alows\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache",
+      "C:\\Users\\alows\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache",
+      "C:\\Users\\alows\\AppData\\Local\\Symbols\\src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="SCUMServerListener" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
@@ -81,7 +82,7 @@
       <workItem from="1709754042518" duration="951000" />
       <workItem from="1709755022982" duration="840000" />
       <workItem from="1709764940546" duration="449000" />
-      <workItem from="1709765403398" duration="790000" />
+      <workItem from="1709765403398" duration="2102000" />
     </task>
     <servers />
   </component>
@@ -92,23 +93,6 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/API/ApiUtil.cs</url>
-          <line>38</line>
-          <properties documentPath="C:\Users\alows\Documents\Development\ServerListenerRepo\API\ApiUtil.cs" initialLine="38" containingFunctionPresentation="Method 'GetServers'">
-            <startOffsets>
-              <option value="1337" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1395" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#SCUMServerListener.ServerTest" memberName="Data" />
