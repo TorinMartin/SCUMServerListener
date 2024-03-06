@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using Timer = System.Windows.Forms.Timer;
 using System.Linq;
+using SCUMServerListener.API;
 
 namespace SCUMServerListener
 {
     public partial class GUI : Form
     {
-        private const int UPDATE_EVERY_SECONDS = 30;
+        private const int UpdateIntervalSeconds = 30;
 
-        private Server _server = null;
+        private Server? _server;
         private int _counter;
         private bool _overlayEnabled;
         private Timer _updateTimer;
@@ -23,10 +25,10 @@ namespace SCUMServerListener
         public GUI()
         { 
             InitializeComponent();
-            update_progbar.Maximum = UPDATE_EVERY_SECONDS;
+            update_progbar.Maximum = UpdateIntervalSeconds;
             update_progbar.Value = 0;
             CreateTimer();
-            Task.Run(() => Update());
+            Task.Run(FetchAndUpdate);
             _overlayEnabled = false;
         }
 
@@ -54,7 +56,7 @@ namespace SCUMServerListener
             _overlayEnabled = true;
             btn_overlay.Text = "Disable Overlay";
             btn_drag_overlay.Show();
-            await Update();
+            await FetchAndUpdate();
         }
 
         private void StopOverlay()
@@ -74,29 +76,26 @@ namespace SCUMServerListener
             _updateTimer.Start();
         }
 
-        private async Task Update()
+        private async Task FetchAndUpdate()
         {
-            var server = await ServerData.RetrieveData(_server);
-            if(server is null)
+            _server = await ApiUtil.RetrieveData(_server?.Data.Id);
+            if (_server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _server = server;
-
-            Action UpdateUIElements;
 
             try
             {
-                var isOnline = _server.Status == "online";
+                var isOnline = _server.Data.Attributes.Status == "online";
                 var color = isOnline ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = isOnline ? ServerData.Ping(_server.Ip, 4).ToString() : string.Empty;
+                var serverPing = isOnline ? ApiUtil.Ping(_server.Data.Attributes.Ip, 4).ToString(CultureInfo.InvariantCulture) : string.Empty;
 
-                UpdateUIElements = new Action(() => {
-                    name.Text = _server.Name;
+                BeginInvoke(() => {
+                    name.Text = _server.Data.Attributes.Name;
                     status.Text = isOnline ? "Online" : "Offline";
-                    players.Text = isOnline ? $"{_server.Players} / {_server.MaxPlayers}" : "0";
-                    time.Text = isOnline ? _server.Time : "00:00";
+                    players.Text = isOnline ? $"{_server.Data.Attributes.Players} / {_server.Data.Attributes.MaxPlayers}" : "0";
+                    time.Text = isOnline ? _server.Data.Attributes.Details.Time : "00:00";
                     Ping.Text = serverPing;
                     name.ForeColor = color;
                     status.ForeColor = color;
@@ -108,29 +107,25 @@ namespace SCUMServerListener
 
                 if (_overlayEnabled)
                 {
-                    _overlay.Name = _server.Name;
-                    _overlay.Status = _server.Status;
-                    _overlay.Players = $"{_server.Players} / {_server.MaxPlayers}";
-                    _overlay.Time = _server.Time;
+                    _overlay.Name = _server.Data.Attributes.Name;
+                    _overlay.Status = _server.Data.Attributes.Status;
+                    _overlay.Players = $"{_server.Data.Attributes.Players} / {_server.Data.Attributes.MaxPlayers}";
+                    _overlay.Time = _server.Data.Attributes.Details.Time;
                     _overlay.Ping = serverPing;
                 }
             } catch (NullReferenceException)
             {
                 MessageBox.Show("There was a problem while retrieving server data!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
-
-            // Run on UI thread
-            this.BeginInvoke(UpdateUIElements);
         }
 
-        private Server IterateResults(IEnumerable<dynamic> servers)
+        private ServerSearchResult IterateResults(IEnumerable<ServerSearchResult> servers)
         {
             if (servers is null) return _server;
 
             foreach (var server in servers)
             {
-                DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                var dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                 if (dialogResult == DialogResult.Yes)
                 {
                     return server;
@@ -147,9 +142,9 @@ namespace SCUMServerListener
         private async Task SearchAsync()
         {
             var searchInput = searchbox.Text;
-            var lookUpString = ServerData.GetLookupString(searchInput);
+            var lookUpString = ApiUtil.GetLookupString(searchInput);
 
-            var servers = await ServerData.GetServers(lookUpString);
+            var servers = await ApiUtil.GetServers(lookUpString);
             if (!servers.Any())
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -160,7 +155,7 @@ namespace SCUMServerListener
 
             updateTimer_Reset();
 
-            await Update();
+            await FetchAndUpdate();
         }
 
         private void searchbutton_Click(object sender, EventArgs e)
@@ -180,7 +175,7 @@ namespace SCUMServerListener
             {
                 update_progbar.Value = 0;
                 _counter = 0;
-                await Update();
+                await FetchAndUpdate();
             }
             _counter++;
             update_progbar.Value = _counter;
@@ -210,7 +205,7 @@ namespace SCUMServerListener
 
         private void setdft_btn_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.DefaultServerId = _server.ID;
+            AppSettings.Instance.DefaultServerId = _server?.Data.Id ?? AppSettings.Instance.DefaultServerId;
             if (!Configuration.Save(AppSettings.Instance))
             {
                 MessageBox.Show("Unable to save default server!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
