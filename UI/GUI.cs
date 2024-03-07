@@ -13,30 +13,31 @@ namespace SCUMServerListener.UI
     public partial class Gui : Form
     {
         private const int UpdateIntervalSeconds = 30;
-
-        private Server? _server;
+        
         private int _counter;
         private bool _overlayEnabled;
-        private Timer _updateTimer;
-        private SettingsForm _settingsForm;
-        private Thread _overlayThread;
+        private Server? _server;
+        private SettingsForm? _settingsForm;
+        private Thread? _overlayThread;
         private Overlay.Overlay? _overlay;
-
+        private readonly Timer _updateTimer;
+        
         public Gui()
         { 
             InitializeComponent();
             update_progbar.Maximum = UpdateIntervalSeconds;
             update_progbar.Value = 0;
-            CreateTimer();
-            Task.Run(FetchAndUpdate);
             _overlayEnabled = false;
+            _updateTimer = new Timer { Interval = 1000 };
+            _updateTimer.Tick += UpdateTimer_Tick;
+            _updateTimer.Start();
         }
 
-        private async Task StartOverlay()
+        private async Task StartOverlayAsync()
         {
             if (_overlay is not null)
             {
-                if (_overlayThread.IsAlive)
+                if (_overlayThread?.IsAlive is true)
                     StopOverlay();
                 else
                     _overlay.Dispose();
@@ -56,29 +57,22 @@ namespace SCUMServerListener.UI
             _overlayEnabled = true;
             btn_overlay.Text = "Disable Overlay";
             btn_drag_overlay.Show();
-            await FetchAndUpdate();
+            await FetchAndUpdateAsync();
         }
 
         private void StopOverlay()
         {
             _overlay?.Dispose();
-            _overlayThread.Join();
+            _overlayThread?.Join();
             _overlayEnabled = false;
             _overlay = null;
             btn_overlay.Text = "Enable Overlay";
             btn_drag_overlay.Hide();
         }
 
-        private void CreateTimer()
+        private async Task FetchAndUpdateAsync()
         {
-            _updateTimer = new Timer { Interval = 1000 };
-            _updateTimer.Tick += updateTimer_Tick;
-            _updateTimer.Start();
-        }
-
-        private async Task FetchAndUpdate()
-        {
-            _server = await ApiUtil.RetrieveData(_server?.Data.Id);
+            _server = await ApiUtil.QueryServerByIdAsync(_server?.Data.Id ?? AppSettings.Instance.DefaultServerId);
             if (_server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -119,7 +113,7 @@ namespace SCUMServerListener.UI
             }
         }
 
-        private async Task<Server?> IterateResults(List<ServerSearchResult> servers)
+        private async Task<Server?> IterateResultsAsync(List<ServerSearchResult> servers)
         {
             if (servers.Any() is false) return _server;
 
@@ -130,7 +124,7 @@ namespace SCUMServerListener.UI
                 
                 if (dialogResult == DialogResult.Yes)
                 {
-                    return await ApiUtil.RetrieveData(server.Id);
+                    return await ApiUtil.QueryServerByIdAsync(server.Id);
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -139,41 +133,39 @@ namespace SCUMServerListener.UI
 
         private async Task SearchAsync()
         {
-            var searchInput = searchbox.Text;
-            var lookUpString = ApiUtil.GetLookupString(searchInput);
-
-            var servers = await ApiUtil.GetServers(lookUpString);
+            var servers = await ApiUtil.GetServersAsync(searchbox.Text);
             if (!servers.Any())
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            _server = await IterateResults(servers);
+            _server = await IterateResultsAsync(servers);
 
-            updateTimer_Reset();
+            UpdateTimer_Reset();
 
-            await FetchAndUpdate();
+            await FetchAndUpdateAsync();
         }
 
-        private void searchbutton_Click(object sender, EventArgs e)
+        private void SearchButton_Click(object sender, EventArgs e)
         {
             _ = SearchAsync();
         }
 
-        private void updateTimer_Reset()
+        private void UpdateTimer_Reset()
         {
             update_progbar.Value = 0;
             _counter = 0;
         }
 
-        private async Task updateTimerTickAsync()
+        private async Task UpdateTimerTickAsync()
         {
+            if (_server is null) await FetchAndUpdateAsync();
             if (_counter >= 30)
             {
                 update_progbar.Value = 0;
                 _counter = 0;
-                await FetchAndUpdate();
+                await FetchAndUpdateAsync();
             }
             _counter++;
             update_progbar.Value = _counter;
@@ -196,12 +188,12 @@ namespace SCUMServerListener.UI
             }
         }
 
-        private void updateTimer_Tick(object sender, EventArgs e)
+        private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            _ = updateTimerTickAsync();
+            _ = UpdateTimerTickAsync();
         }
 
-        private void setdft_btn_Click(object sender, EventArgs e)
+        private void SetDft_Btn_Click(object sender, EventArgs e)
         {
             AppSettings.Instance.DefaultServerId = _server?.Data.Id ?? AppSettings.Instance.DefaultServerId;
             if (!Configuration.Save(AppSettings.Instance))
@@ -212,36 +204,36 @@ namespace SCUMServerListener.UI
             MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
-        private async Task toggleOverlayAsync()
+        private async Task ToggleOverlayAsync()
         {
             if (!_overlayEnabled)
             {
-                await StartOverlay();
+                await StartOverlayAsync();
             }
             else
             {
                 StopOverlay();
             }
         }
-        private void btn_overlay_Click(object sender, EventArgs e)
+        private void Btn_Overlay_Click(object sender, EventArgs e)
         {
-            _ = toggleOverlayAsync();
+            _ = ToggleOverlayAsync();
         }
 
-        private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OverlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _settingsForm = new SettingsForm(_overlay ?? new Overlay.Overlay(this));
             _settingsForm.Show();
         }
 
-        private void btn_drag_overlay_Click(object sender, EventArgs e)
+        private void Btn_Drag_Overlay_Click(object sender, EventArgs e)
         {
             if (_overlay is null || !_overlayEnabled) return;
 
-            toggle_overlay_btn(false);
+            Toggle_Overlay_Btn(false);
             _overlay.DragOverlay();
         }
 
-        public void toggle_overlay_btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
+        public void Toggle_Overlay_Btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
     }
 }

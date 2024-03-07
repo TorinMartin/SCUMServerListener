@@ -227,7 +227,7 @@ namespace SCUMServerListener.Overlay
             AppSettings.Instance.PositionX = X;
             AppSettings.Instance.PositionY = Y;
             Configuration.Save(AppSettings.Instance);
-            _gui.toggle_overlay_btn(true);
+            _gui.Toggle_Overlay_Btn(true);
         }
 
         ~Overlay()

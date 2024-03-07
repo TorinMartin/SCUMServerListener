@@ -13,27 +13,26 @@ namespace SCUMServerListener.API
     
     public static class ApiUtil
     {
-        private const string ApiUrl = "https://api.battlemetrics.com/servers?page%5Bsize%5D=50&filter%5Bgame%5D=scum&filter%5Bsearch%5D=";
-        private const string GenApiUrl = "https://api.battlemetrics.com/servers/";
+        private const string ApiHostUrl = "https://api.battlemetrics.com/servers";
+        private const int RequestSize = 50;
         private const int Timeout = 120;
         private static readonly HttpClient Client = new();
 
-        private static async Task<HttpResponseMessage> SendRequest(string url)
+        private static async Task<HttpResponseMessage> SendRequestAsync(string url)
         {
             var response = await Client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             return response;
         }
 
-        public static string GetLookupString(string serverString) => $"{ApiUrl}{Uri.EscapeDataString(serverString)}";
-
-        public static async Task<List<ServerSearchResult>> GetServers(string lookUpString)
+        public static async Task<List<ServerSearchResult>> GetServersAsync(string query)
         {
             var result = new List<ServerSearchResult>();
 
             try
             {
-                var response = await SendRequest(lookUpString);
+                var url = $"{ApiHostUrl}?page%5Bsize%5D={RequestSize}&filter%5Bgame%5D=scum&filter%5Bsearch%5D={Uri.EscapeDataString(query)}";
+                var response = await SendRequestAsync(url);
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrEmpty(json)) return result;
@@ -50,13 +49,13 @@ namespace SCUMServerListener.API
             return result;
         }
 
-        public static async Task<Server?> RetrieveData(string? id)
+        public static async Task<Server?> QueryServerByIdAsync(string? id)
         {
             if (string.IsNullOrEmpty(id)) return null;
             
             try
             {
-                var response = await SendRequest($"{GenApiUrl}{id}"); 
+                var response = await SendRequestAsync($"{ApiHostUrl}/{id}"); 
                 var json = await response.Content.ReadAsStringAsync();
 
                 return string.IsNullOrEmpty(json) ? null : JsonConvert.DeserializeObject<Server>(json);

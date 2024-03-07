@@ -9,6 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e7a88525-7902-44b8-bace-27d257cfbc8a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SCUMServerListener/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SCUMServerListener/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/ApiUtil.cs" beforeDir="false" afterPath="$PROJECT_DIR$/API/ApiUtil.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Configuration/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Configuration/appsettings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Overlay/Overlay.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Overlay/Overlay.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/GUI.Designer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/UI/GUI.Designer.cs" afterDir="false" />
@@ -82,7 +84,7 @@
       <workItem from="1709754042518" duration="951000" />
       <workItem from="1709755022982" duration="840000" />
       <workItem from="1709764940546" duration="449000" />
-      <workItem from="1709765403398" duration="2102000" />
+      <workItem from="1709765403398" duration="5421000" />
     </task>
     <servers />
   </component>
