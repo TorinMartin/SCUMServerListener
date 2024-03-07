@@ -1,23 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SCUMServerListener.UI;
 
 namespace SCUMServerListener
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static async Task Main()
         {
             Application.EnableVisualStyles();
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new GUI());
+        
+            await RunAsync(new Gui());
+        }
+
+        private static Task RunAsync(Form form)
+        {
+            var tcs = new TaskCompletionSource<object?>();
+        
+            form.Load += (_, __) => tcs.SetResult(null);
+            Application.Run(form);
+        
+            return tcs.Task;
         }
     }
 }

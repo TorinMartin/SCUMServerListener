@@ -1,40 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
+using SCUMServerListener.API;
 using Timer = System.Windows.Forms.Timer;
-using System.Linq;
 
-namespace SCUMServerListener
+namespace SCUMServerListener.UI
 {
-    public partial class GUI : Form
+    public partial class Gui : Form
     {
-        private const int UPDATE_EVERY_SECONDS = 30;
-
-        private Server _server = null;
+        private const int UpdateIntervalSeconds = 30;
+        
         private int _counter;
         private bool _overlayEnabled;
-        private Timer _updateTimer;
-        private SettingsForm _settingsForm;
-        private Thread _overlayThread;
-        private Overlay.Overlay _overlay;
-
-        public GUI()
+        private Server? _server;
+        private SettingsForm? _settingsForm;
+        private Thread? _overlayThread;
+        private Overlay.Overlay? _overlay;
+        private readonly Timer _updateTimer;
+        
+        public Gui()
         { 
             InitializeComponent();
-            update_progbar.Maximum = UPDATE_EVERY_SECONDS;
+            update_progbar.Maximum = UpdateIntervalSeconds;
             update_progbar.Value = 0;
-            CreateTimer();
-            Task.Run(() => Update());
             _overlayEnabled = false;
+            _updateTimer = new Timer { Interval = 1000 };
+            _updateTimer.Tick += UpdateTimer_Tick;
+            _updateTimer.Start();
         }
 
-        private async Task StartOverlay()
+        private async Task StartOverlayAsync()
         {
             if (_overlay is not null)
             {
-                if (_overlayThread.IsAlive)
+                if (_overlayThread?.IsAlive is true)
                     StopOverlay();
                 else
                     _overlay.Dispose();
@@ -54,49 +57,39 @@ namespace SCUMServerListener
             _overlayEnabled = true;
             btn_overlay.Text = "Disable Overlay";
             btn_drag_overlay.Show();
-            await Update();
+            await FetchAndUpdateAsync();
         }
 
         private void StopOverlay()
         {
-            _overlay.Dispose();
-            _overlayThread.Join();
+            _overlay?.Dispose();
+            _overlayThread?.Join();
             _overlayEnabled = false;
             _overlay = null;
             btn_overlay.Text = "Enable Overlay";
             btn_drag_overlay.Hide();
         }
 
-        private void CreateTimer()
+        private async Task FetchAndUpdateAsync()
         {
-            _updateTimer = new Timer() { Interval = 1000 };
-            _updateTimer.Tick += new EventHandler(updateTimer_Tick);
-            _updateTimer.Start();
-        }
-
-        private async Task Update()
-        {
-            var server = await ServerData.RetrieveData(_server);
-            if(server is null)
+            _server = await ApiUtil.QueryServerByIdAsync(_server?.Data.Id ?? AppSettings.Instance.DefaultServerId);
+            if (_server is null)
             {
                 MessageBox.Show("Unable to fetch server data", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _server = server;
-
-            Action UpdateUIElements;
 
             try
             {
-                var isOnline = _server.Status == "online";
+                var isOnline = _server.Data.Attributes.Status == "online";
                 var color = isOnline ? System.Drawing.Color.Green : System.Drawing.Color.Red;
-                var serverPing = isOnline ? ServerData.Ping(_server.Ip, 4).ToString() : string.Empty;
+                var serverPing = isOnline ? ApiUtil.Ping(_server.Data.Attributes.Ip, 4).ToString(CultureInfo.InvariantCulture) : string.Empty;
 
-                UpdateUIElements = new Action(() => {
-                    name.Text = _server.Name;
+                BeginInvoke(() => {
+                    name.Text = _server.Data.Attributes.Name;
                     status.Text = isOnline ? "Online" : "Offline";
-                    players.Text = isOnline ? $"{_server.Players} / {_server.MaxPlayers}" : "0";
-                    time.Text = isOnline ? _server.Time : "00:00";
+                    players.Text = isOnline ? $"{_server.Data.Attributes.Players} / {_server.Data.Attributes.MaxPlayers}" : "0";
+                    time.Text = isOnline ? _server.Data.Attributes.Details.Time : "00:00";
                     Ping.Text = serverPing;
                     name.ForeColor = color;
                     status.ForeColor = color;
@@ -106,38 +99,32 @@ namespace SCUMServerListener
 
                 if (!searchbutton.Enabled) searchbutton.Enabled = true;
 
-                if (_overlayEnabled)
+                if (_overlayEnabled && _overlay is not null)
                 {
-                    _overlay.Name = _server.Name;
-                    _overlay.Status = _server.Status;
-                    _overlay.Players = $"{_server.Players} / {_server.MaxPlayers}";
-                    _overlay.Time = _server.Time;
+                    _overlay.Name = _server.Data.Attributes.Name;
+                    _overlay.Status = _server.Data.Attributes.Status;
+                    _overlay.Players = $"{_server.Data.Attributes.Players} / {_server.Data.Attributes.MaxPlayers}";
+                    _overlay.Time = _server.Data.Attributes.Details.Time;
                     _overlay.Ping = serverPing;
                 }
             } catch (NullReferenceException)
             {
                 MessageBox.Show("There was a problem while retrieving server data!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
-
-            // Run on UI thread
-            this.BeginInvoke(UpdateUIElements);
         }
 
-        private Server IterateResults(IEnumerable<dynamic> servers)
+        private async Task<Server?> IterateResultsAsync(List<ServerSearchResult> servers)
         {
-            if (servers is null) return _server;
+            if (servers.Any() is false) return _server;
 
             foreach (var server in servers)
             {
-                DialogResult dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                var dialogResult = MessageBox.Show(server.Name, "Search Results", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                if (dialogResult == DialogResult.Cancel) break;
+                
                 if (dialogResult == DialogResult.Yes)
                 {
-                    return server;
-                }
-                else if (dialogResult == DialogResult.Cancel)
-                {
-                    break;
+                    return await ApiUtil.QueryServerByIdAsync(server.Id);
                 }
             }
             MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -146,41 +133,39 @@ namespace SCUMServerListener
 
         private async Task SearchAsync()
         {
-            var searchInput = searchbox.Text;
-            var lookUpString = ServerData.GetLookupString(searchInput);
-
-            var servers = await ServerData.GetServers(lookUpString);
+            var servers = await ApiUtil.GetServersAsync(searchbox.Text);
             if (!servers.Any())
             {
                 MessageBox.Show("End of Results", "Search Results", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            _server = IterateResults(servers);
+            _server = await IterateResultsAsync(servers);
 
-            updateTimer_Reset();
+            UpdateTimer_Reset();
 
-            await Update();
+            await FetchAndUpdateAsync();
         }
 
-        private void searchbutton_Click(object sender, EventArgs e)
+        private void SearchButton_Click(object sender, EventArgs e)
         {
             _ = SearchAsync();
         }
 
-        private void updateTimer_Reset()
+        private void UpdateTimer_Reset()
         {
             update_progbar.Value = 0;
             _counter = 0;
         }
 
-        private async Task updateTimerTickAsync()
+        private async Task UpdateTimerTickAsync()
         {
+            if (_server is null) await FetchAndUpdateAsync();
             if (_counter >= 30)
             {
                 update_progbar.Value = 0;
                 _counter = 0;
-                await Update();
+                await FetchAndUpdateAsync();
             }
             _counter++;
             update_progbar.Value = _counter;
@@ -203,14 +188,14 @@ namespace SCUMServerListener
             }
         }
 
-        private void updateTimer_Tick(object sender, EventArgs e)
+        private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            _ = updateTimerTickAsync();
+            _ = UpdateTimerTickAsync();
         }
 
-        private void setdft_btn_Click(object sender, EventArgs e)
+        private void SetDft_Btn_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.DefaultServerId = _server.ID;
+            AppSettings.Instance.DefaultServerId = _server?.Data.Id ?? AppSettings.Instance.DefaultServerId;
             if (!Configuration.Save(AppSettings.Instance))
             {
                 MessageBox.Show("Unable to save default server!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -219,39 +204,36 @@ namespace SCUMServerListener
             MessageBox.Show("Default Server Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
-        private async Task toggleOverlayAsync()
+        private async Task ToggleOverlayAsync()
         {
             if (!_overlayEnabled)
             {
-                await StartOverlay();
+                await StartOverlayAsync();
             }
             else
             {
                 StopOverlay();
             }
         }
-        private void btn_overlay_Click(object sender, EventArgs e)
+        private void Btn_Overlay_Click(object sender, EventArgs e)
         {
-            _ = toggleOverlayAsync();
+            _ = ToggleOverlayAsync();
         }
 
-        private void overlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OverlaySettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _settingsForm = new SettingsForm(_overlay);
+            _settingsForm = new SettingsForm(_overlay ?? new Overlay.Overlay(this));
             _settingsForm.Show();
         }
 
-        private void btn_drag_overlay_Click(object sender, EventArgs e)
+        private void Btn_Drag_Overlay_Click(object sender, EventArgs e)
         {
             if (_overlay is null || !_overlayEnabled) return;
 
-            toggle_overlay_btn(false);
+            Toggle_Overlay_Btn(false);
             _overlay.DragOverlay();
         }
 
-        public void toggle_overlay_btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
-
-        public void InvokeOnUIThread(Action del) => this.BeginInvoke(del);
-
+        public void Toggle_Overlay_Btn(bool isDoneDragging) => btn_drag_overlay.Enabled = isDoneDragging;
     }
 }

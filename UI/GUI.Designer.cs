@@ -1,6 +1,6 @@
-﻿namespace SCUMServerListener
+﻿namespace SCUMServerListener.UI
 {
-    partial class GUI
+    partial class Gui
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GUI));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Gui));
             this.searchbox = new System.Windows.Forms.TextBox();
             this.searchbutton = new System.Windows.Forms.Button();
             this.title = new System.Windows.Forms.Label();
@@ -72,7 +72,7 @@
             this.searchbutton.TabIndex = 1;
             this.searchbutton.Text = "Search";
             this.searchbutton.UseVisualStyleBackColor = true;
-            this.searchbutton.Click += new System.EventHandler(searchbutton_Click);
+            this.searchbutton.Click += new System.EventHandler(SearchButton_Click);
             // 
             // title
             // 
@@ -180,7 +180,7 @@
             this.setdft_btn.TabIndex = 12;
             this.setdft_btn.Text = "Set Default";
             this.setdft_btn.UseVisualStyleBackColor = false;
-            this.setdft_btn.Click += new System.EventHandler(this.setdft_btn_Click);
+            this.setdft_btn.Click += new System.EventHandler(this.SetDft_Btn_Click);
             // 
             // label_ping
             // 
@@ -209,7 +209,7 @@
             this.btn_overlay.TabIndex = 15;
             this.btn_overlay.Text = "Enable Overlay";
             this.btn_overlay.UseVisualStyleBackColor = true;
-            this.btn_overlay.Click += new System.EventHandler(this.btn_overlay_Click);
+            this.btn_overlay.Click += new System.EventHandler(this.Btn_Overlay_Click);
             // 
             // menuStrip
             // 
@@ -234,7 +234,7 @@
             this.overlaySettingsToolStripMenuItem.Name = "overlaySettingsToolStripMenuItem";
             this.overlaySettingsToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.overlaySettingsToolStripMenuItem.Text = "Overlay Settings";
-            this.overlaySettingsToolStripMenuItem.Click += new System.EventHandler(this.overlaySettingsToolStripMenuItem_Click);
+            this.overlaySettingsToolStripMenuItem.Click += new System.EventHandler(this.OverlaySettingsToolStripMenuItem_Click);
             // 
             // label_time
             // 
@@ -268,7 +268,7 @@
             this.drag_tooltip.SetToolTip(this.btn_drag_overlay, "Position overlay with your mouse! Left click to save!");
             this.btn_drag_overlay.UseVisualStyleBackColor = true;
             this.btn_drag_overlay.Visible = false;
-            this.btn_drag_overlay.Click += new System.EventHandler(this.btn_drag_overlay_Click);
+            this.btn_drag_overlay.Click += new System.EventHandler(this.Btn_Drag_Overlay_Click);
             // 
             // drag_tooltip
             // 
@@ -311,7 +311,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.MaximizeBox = false;
-            this.Name = "GUI";
+            this.Name = "Gui";
             this.Text = "SCUM Server Listener";
             ((System.ComponentModel.ISupportInitialize)(this.gradbg_picbox)).EndInit();
             this.menuStrip.ResumeLayout(false);
