@@ -10,28 +10,28 @@ using SCUMServerListener.UI;
 
 namespace SCUMServerListener.Overlay
 {
-    public class Overlay : IDisposable
+    public class GameOverlay : IDisposable
     {
-        private readonly GraphicsWindow _window;
+        private const string WindowName = "SCUM  ";
+        private const string ClassName = "UnrealWindow";
+        
+        private readonly GraphicsWindow? _window;
         private readonly Dictionary<string, SolidBrush> _brushes;
         private readonly Dictionary<string, Font> _fonts;
         private bool _disposedValue;
         private IntPtr _hWnd = IntPtr.Zero;
-        private readonly string _windowName = "SCUM  ";
-        private readonly string _className = "UnrealWindow";
-        private readonly Process _gameProcess;
+        private readonly Process? _gameProcess;
         private readonly Gui _gui;
-
-        public readonly bool IsCreated;
-        public string Name, Players, Status, Time, Ping;
+        
+        public string? Name, Players, Status, Time, Ping;
         public int X = AppSettings.Instance.PositionX, Y = AppSettings.Instance.PositionY;
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern IntPtr GetForegroundWindow();
@@ -51,9 +51,8 @@ namespace SCUMServerListener.Overlay
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr hHandle);
 
-        public Overlay(Gui gui)
+        public GameOverlay(Gui gui)
         {
-            RECT rect;
             _gui = gui;
             _brushes = new Dictionary<string, SolidBrush>();
             _fonts = new Dictionary<string, Font>();
@@ -64,51 +63,44 @@ namespace SCUMServerListener.Overlay
                 PerPrimitiveAntiAliasing = true,
                 TextAntiAliasing = true,
             };
-
-            try
+            
+            if (AppSettings.Instance.OverlayAllWindows is false)
             {
-                if (!AppSettings.Instance.OverlayAllWindows)
+                _hWnd = FindWindow(ClassName, WindowName);
+                GetWindowRect(_hWnd, out var rect);
+                
+                _gameProcess = GetGameProcess();
+                if (_gameProcess is null) throw new Exception("SCUM.exe not found");
+
+                _window = new StickyWindow(_hWnd, gfx)
                 {
-                    _hWnd = FindWindow(_className, _windowName);
-                    GetWindowRect(_hWnd, out rect);
-                    _gameProcess = GetGameProcess();
-
-                    _window = new StickyWindow(_hWnd, gfx)
-                    {
-                        FPS = 60,
-                        IsTopmost = true,
-                        IsVisible = true,
-                        X = rect.left,
-                        Y = rect.top
-                    };
-                }
-                else
-                {
-                    // OVERLAY EVERY WINDOW:
-                    var width = Screen.PrimaryScreen.Bounds.Width;
-                    var height = Screen.PrimaryScreen.Bounds.Height;
-
-                    _window = new GraphicsWindow(0, 0, width, height, gfx)
-                    {
-                        FPS = 60,
-                        IsTopmost = true,
-                        IsVisible = true,
-                    };
-                }
-
-                _window.DestroyGraphics += _window_DestroyGraphics;
-                _window.DrawGraphics += _window_DrawGraphics;
-                _window.SetupGraphics += _window_SetupGraphics;
-
-                IsCreated = true;
+                    FPS = 60,
+                    IsTopmost = true,
+                    IsVisible = true,
+                    X = rect.left,
+                    Y = rect.top
+                };
             }
-            catch (System.ArgumentOutOfRangeException)
+            else
             {
-                MessageBox.Show("SCUM is not running!", "SCUM.exe not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // OVERLAY EVERY WINDOW
+                var width = Screen.PrimaryScreen.Bounds.Width;
+                var height = Screen.PrimaryScreen.Bounds.Height;
+
+                _window = new GraphicsWindow(0, 0, width, height, gfx)
+                {
+                    FPS = 60,
+                    IsTopmost = true,
+                    IsVisible = true,
+                };
             }
+
+            _window.DestroyGraphics += _window_DestroyGraphics;
+            _window.DrawGraphics += _window_DrawGraphics;
+            _window.SetupGraphics += _window_SetupGraphics;
         }
 
-        private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
+        private void _window_SetupGraphics(object? sender, SetupGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
 
@@ -133,13 +125,13 @@ namespace SCUMServerListener.Overlay
             _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
         }
 
-        private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
+        private void _window_DestroyGraphics(object? sender, DestroyGraphicsEventArgs e)
         {
             foreach (var pair in _brushes) pair.Value.Dispose();
             foreach (var pair in _fonts) pair.Value.Dispose();
         }
 
-        private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
+        private void _window_DrawGraphics(object? sender, DrawGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
 
@@ -173,12 +165,11 @@ namespace SCUMServerListener.Overlay
 
         public void Run()
         {
-            if (!IsCreated) return;
-            _window.Create();
-            _window.Join();
+            _window?.Create();
+            _window?.Join();
         }
 
-        public bool HasProcessExited() => _gameProcess.HasExited;
+        public bool HasProcessExited() => _gameProcess?.HasExited ?? true;
 
         // Credit https://stackoverflow.com/questions/7162834/determine-if-current-application-is-activated-has-focus
         private bool ApplicationIsActivated()
@@ -186,17 +177,17 @@ namespace SCUMServerListener.Overlay
             var activehWnd = GetForegroundWindow();
             if (activehWnd == IntPtr.Zero) return false;
 
-            GetWindowThreadProcessId(activehWnd, out var activeProcId);
+            _ = GetWindowThreadProcessId(activehWnd, out var activeProcId);
 
-            return activeProcId == _gameProcess.Id;
+            return activeProcId == _gameProcess?.Id;
         }
 
         public void SetWindowVisibility()
         {
-            _window.IsVisible = ApplicationIsActivated();
+            if (_window != null) _window.IsVisible = ApplicationIsActivated();
         }
 
-        private static Process GetGameProcess()
+        private static Process? GetGameProcess()
         {
             var procList = Process.GetProcessesByName("SCUM");
             return procList.Length > 0 ? procList[0] : null;
@@ -211,16 +202,11 @@ namespace SCUMServerListener.Overlay
 
             Task.Run(() =>
             {
-                var isDragging = true;
-                while (isDragging)
+                while ((GetAsyncKeyState(Keys.LButton) & 0x8000) != 0x8000)
                 {
                     GetCursorPos(out var mouse);
                     X = mouse.X;
                     Y = mouse.Y;
-                    if ((GetAsyncKeyState(Keys.LButton) & 0x8000) == 0x8000)
-                    {
-                        isDragging = false;
-                    }
                 }
             });
             
@@ -230,16 +216,14 @@ namespace SCUMServerListener.Overlay
             _gui.Toggle_Overlay_Btn(true);
         }
 
-        ~Overlay()
+        ~GameOverlay()
         {
             Dispose(false);
         }
 
-        #region IDisposable Support
-
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!IsCreated) return;
+            if (!disposing) return;
             if (_hWnd != IntPtr.Zero)
             {
                 try
@@ -255,7 +239,7 @@ namespace SCUMServerListener.Overlay
 
             if (!_disposedValue)
             {
-                _window.Dispose();
+                _window?.Dispose();
                 _disposedValue = true;
             }
         }
@@ -265,6 +249,5 @@ namespace SCUMServerListener.Overlay
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
     }
 }
