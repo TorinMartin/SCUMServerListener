@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SCUMServerListener
+namespace SCUMServerListener.UI
 {
     public partial class SettingsForm : Form
     {
-        private Overlay.Overlay ol;
+        private readonly Overlay.GameOverlay? _overlay;
+        private const int OverlayPositionIncrement = 10;
 
-        public SettingsForm(Overlay.Overlay ol)
+        public SettingsForm(Overlay.GameOverlay? overlay = null)
         {
             InitializeComponent();
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.ol = ol;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            _overlay = overlay;
 
             tb_po1.Text = AppSettings.Instance.PositionX.ToString();
             tb_po2.Text = AppSettings.Instance.PositionY.ToString();
@@ -24,31 +25,25 @@ namespace SCUMServerListener
             cb_allwindows.Checked = AppSettings.Instance.OverlayAllWindows;
             cb_background.Checked = AppSettings.Instance.DisableBackground;
 
-
             allwindows_tooltip.ShowAlways = true;
-            allwindows_tooltip.SetToolTip(this.cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
+            allwindows_tooltip.SetToolTip(cb_allwindows, "Show overlay over all active windows with or without game running. Restart overlay to take effect");
 
             cb_bgColor.SelectedItem = FormatString(AppSettings.Instance.BackgroundColor);
             cb_serveroffline.SelectedItem = FormatString(AppSettings.Instance.OfflineColor);
             cb_serveronline.SelectedItem = FormatString(AppSettings.Instance.OnlineColor);
         }
 
-        private string FormatString(string value)
-        {
-            if (string.IsNullOrEmpty(value)) return string.Empty;
+        private static string FormatString(string value) => string.IsNullOrEmpty(value) ? string.Empty : $"{value[0].ToString().ToUpper()}{value[1..].ToLower()}";
 
-            return value[0].ToString().ToUpper() + value.Substring(1).ToLower();
-        }
-
-        private void btn_save_Click(object sender, EventArgs e)
+        private void Btn_Save_Click(object sender, EventArgs e)
         {
-            if (!int.TryParse(tb_po1.Text, out var x))
+            if (int.TryParse(tb_po1.Text, out var x) is false)
             {
                 MessageBox.Show("Position X Must Be Numeric!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if(!int.TryParse(tb_po2.Text, out var y))
+            if(int.TryParse(tb_po2.Text, out var y) is false)
             {
                 MessageBox.Show("Position Y Must Be Numeric!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -70,36 +65,32 @@ namespace SCUMServerListener
             MessageBox.Show("Settings Saved!", "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
-        private void btn_up_Click(object sender, EventArgs e)
+        private void Btn_Up_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.PositionY -= 10;
+            AppSettings.Instance.PositionY -= OverlayPositionIncrement;
             tb_po2.Text = AppSettings.Instance.PositionY.ToString();
-            if (ol != null)
-                ol.Y = AppSettings.Instance.PositionY;
+            if (_overlay != null) _overlay.Y = AppSettings.Instance.PositionY;
         }
 
-        private void btn_right_Click(object sender, EventArgs e)
+        private void Btn_Right_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.PositionX += 10;
+            AppSettings.Instance.PositionX += OverlayPositionIncrement;
             tb_po1.Text = AppSettings.Instance.PositionX.ToString();
-            if (ol != null)
-                ol.X = AppSettings.Instance.PositionX;
+            if (_overlay != null) _overlay.X = AppSettings.Instance.PositionX;
         }
 
-        private void btn_down_Click(object sender, EventArgs e)
+        private void Btn_Down_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.PositionY += 10;
+            AppSettings.Instance.PositionY += OverlayPositionIncrement;
             tb_po2.Text = AppSettings.Instance.PositionY.ToString();
-            if (ol != null)
-                ol.Y = AppSettings.Instance.PositionY;
+            if (_overlay != null) _overlay.Y = AppSettings.Instance.PositionY;
         }
 
-        private void btn_left_Click(object sender, EventArgs e)
+        private void Btn_Left_Click(object sender, EventArgs e)
         {
-            AppSettings.Instance.PositionX -= 10;
+            AppSettings.Instance.PositionX -= OverlayPositionIncrement;
             tb_po1.Text = AppSettings.Instance.PositionX.ToString();
-            if (ol != null)
-                ol.X = AppSettings.Instance.PositionX;
+            if (_overlay != null) _overlay.X = AppSettings.Instance.PositionX;
         }
     }
 }

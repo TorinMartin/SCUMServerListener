@@ -1,4 +1,4 @@
-﻿namespace SCUMServerListener
+﻿namespace SCUMServerListener.UI
 {
     partial class SettingsForm
     {
@@ -66,7 +66,7 @@
             this.btn_save.TabIndex = 0;
             this.btn_save.Text = "Save";
             this.btn_save.UseVisualStyleBackColor = true;
-            this.btn_save.Click += new System.EventHandler(this.btn_save_Click);
+            this.btn_save.Click += new System.EventHandler(this.Btn_Save_Click);
             // 
             // cb_background
             // 
@@ -199,7 +199,7 @@
             this.btn_left.Size = new System.Drawing.Size(27, 23);
             this.btn_left.TabIndex = 14;
             this.btn_left.UseVisualStyleBackColor = true;
-            this.btn_left.Click += new System.EventHandler(this.btn_left_Click);
+            this.btn_left.Click += new System.EventHandler(this.Btn_Left_Click);
             // 
             // btn_right
             // 
@@ -209,7 +209,7 @@
             this.btn_right.Size = new System.Drawing.Size(27, 23);
             this.btn_right.TabIndex = 13;
             this.btn_right.UseVisualStyleBackColor = true;
-            this.btn_right.Click += new System.EventHandler(this.btn_right_Click);
+            this.btn_right.Click += new System.EventHandler(this.Btn_Right_Click);
             // 
             // btn_down
             // 
@@ -219,7 +219,7 @@
             this.btn_down.Size = new System.Drawing.Size(27, 23);
             this.btn_down.TabIndex = 12;
             this.btn_down.UseVisualStyleBackColor = true;
-            this.btn_down.Click += new System.EventHandler(this.btn_down_Click);
+            this.btn_down.Click += new System.EventHandler(this.Btn_Down_Click);
             // 
             // btn_up
             // 
@@ -229,7 +229,7 @@
             this.btn_up.Size = new System.Drawing.Size(27, 23);
             this.btn_up.TabIndex = 11;
             this.btn_up.UseVisualStyleBackColor = true;
-            this.btn_up.Click += new System.EventHandler(this.btn_up_Click);
+            this.btn_up.Click += new System.EventHandler(this.Btn_Up_Click);
             // 
             // cb_name
             // 
